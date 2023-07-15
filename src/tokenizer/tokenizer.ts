@@ -48,7 +48,8 @@ class Tokenizer {
 	}
 
 	/**
-	 *
+	 * Scans the source from the current cursor position for valid lexeme and adds to token list if found
+	 * Else if unknown word is found throws an error
 	 */
 	private scanToken() {
 		let c = this.advance()
@@ -184,7 +185,7 @@ class Tokenizer {
 		}
 
 		if (this.isAtEnd()) {
-			throw new Error(this.line + ': Unterminated String')
+			throw new LoxError(this.line, 'Unterminated String')
 		}
 
 		// Advance past the closing `""`

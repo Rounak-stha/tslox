@@ -149,7 +149,11 @@ describe('Test Scanner', () => {
 
 		try {
 			scanner.scanTokens()
-		} catch (e) {}
+		} catch (e) {
+			if (e instanceof LoxError) {
+				expect(e.message).toBe('Unterminated String at line: 5')
+			}
+		}
 	})
 
 	it('Test Comment', () => {
