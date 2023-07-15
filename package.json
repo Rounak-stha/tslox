@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"build": "tsc",
+		"build": "tsc -p tsconfig.build.json",
 		"build:run": "npm run build && node build/src/index.js",
 		"test": "jest",
 		"test:watch": "jest --watchAll --verbose"
