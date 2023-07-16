@@ -2,7 +2,7 @@ import TokenType from './TokenType'
 import Token from './Token'
 import LoxError from '../error/LoxError'
 
-class Tokenizer {
+export default class Tokenizer {
 	private source: string
 	private tokens: Token[] = []
 	private start = 0 // start index of the curreny lexeme in the source
@@ -195,8 +195,8 @@ class Tokenizer {
 	}
 
 	/**
-	 * As the name suggest, it peeks the chatacter at the cursor index in the source code and returns the char if !EOF else returns the null string character
-	 * @returns string
+	 * As the name suggest, it peeks the chatacter at the cursor index in the source
+	 * code and returns the char if !EOF else returns the null string character
 	 */
 	private peek(): string {
 		if (!this.isAtEnd()) {
@@ -206,8 +206,8 @@ class Tokenizer {
 	}
 
 	/**
-	 * As the name suggest, it peeks the chatacter at the cursor index + 1 in the source code and returns the char if !EOF else returns the null string character
-	 * @returns string
+	 * As the name suggest, it peeks the chatacter at the cursor index + 1 in the
+	 * source code and returns the char if !EOF else returns the null string character
 	 */
 	private peekNext(): string {
 		if (!(this.cursor + 1 >= this.source.length)) {
@@ -218,8 +218,6 @@ class Tokenizer {
 
 	/**
 	 * Creates a new Token of the type an adds it to the token list
-	 * @param type TokenType
-	 * @param literal object | undefined
 	 */
 	private addToken(type: TokenType, literal?: any) {
 		const lexeme = this.source.substring(this.start, this.cursor)
@@ -236,9 +234,8 @@ class Tokenizer {
 	}
 
 	/**
-	 * Check if the provided character matches the next char in the source and advances the cursor index pointer if it's a match
-	 * @param char Character to check
-	 * @returns Boolean: True if next character matches the provided char else false
+	 * Check if the provided character matches the next char in the source and
+	 * advances the cursor index pointer if it's a match
 	 */
 	advanceIfNextEquals(char: string) {
 		if (this.isAtEnd()) return false
@@ -251,11 +248,8 @@ class Tokenizer {
 
 	/**
 	 * Checks if the cursor index pointer is at the end of the source code
-	 * @returns boolean
 	 */
 	isAtEnd() {
 		return this.cursor >= this.source.length
 	}
 }
-
-export default Tokenizer
