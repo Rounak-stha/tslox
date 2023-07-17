@@ -148,7 +148,7 @@ export default class Parser {
 	 * Else throws a syntax error
 	 */
 	private consume(type: TokenType, message: string): Token {
-		if (this.check(type)) this.advance()
+		if (this.check(type)) return this.advance()
 		throw new LoxError(this.tokens[this.currTokenIndex].line, 'Syntax', message)
 	}
 
