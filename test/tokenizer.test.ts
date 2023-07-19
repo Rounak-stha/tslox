@@ -132,7 +132,7 @@ describe('Test Scanner', () => {
 
 		expect(tokens[7].type).toBe(TokenType.NUMBER)
 		expect(tokens[7].lexeme).toBe('11.12')
-		expect(tokens[7].literal).toBe('11.12')
+		expect(tokens[7].literal).toBe(11.12)
 		expect(tokens[7].line).toBe(3)
 
 		expect(tokens[3].toString()).toBe(`STRING "This is a string" This is a string`)

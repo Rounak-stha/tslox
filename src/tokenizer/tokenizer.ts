@@ -170,7 +170,7 @@ export default class Tokenizer {
 			}
 		}
 
-		this.addToken(TokenType.NUMBER, this.source.substring(this.start, this.cursor))
+		this.addToken(TokenType.NUMBER, Number(this.source.substring(this.start, this.cursor)))
 	}
 
 	/**
