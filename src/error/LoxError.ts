@@ -1,4 +1,4 @@
-type ErrorType = 'Syntax' | 'Unknown Lexeme' | 'Unterminated String' | 'Parse Error'
+type ErrorType = 'Syntax' | 'Unknown Lexeme' | 'Unterminated String' | 'Parse Error' | 'Runtime'
 
 class LoxError extends Error {
 	code: number
@@ -18,6 +18,11 @@ class LoxError extends Error {
 				break
 			case 'Unterminated String':
 				super(`Unterminated String at line: ${line}${message ? '\n' + message : ''}`)
+				this.code = 403
+				this.type = type
+				break
+			case 'Runtime':
+				super(`Runtime Error at line: ${line}${message ? '\n' + message : ''}`)
 				this.code = 403
 				this.type = type
 				break
