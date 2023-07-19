@@ -20,11 +20,11 @@ describe('All Expression Class Test', () => {
 			new Literal(9)
 		)
 
-		expect(multiplicationExpression.left).toBe(2)
-		expect(multiplicationExpression.right).toBe(2)
+		expect(multiplicationExpression.left).toEqual(new Literal(2))
+		expect(multiplicationExpression.right).toEqual(new Literal(2))
 		expect(multiplicationExpression.operator.lexeme).toBe('*')
 
-		expect(aditionExpresion.left).toBe(1)
+		expect(aditionExpresion.left).toEqual(new Literal(1))
 		expect(aditionExpresion.right).toBe(multiplicationExpression)
 
 		expect(subtractionExpression.left).toBe(aditionExpresion)
