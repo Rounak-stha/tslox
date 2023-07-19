@@ -4,9 +4,21 @@ import TokenType from '../src/tokenizer/TokenType'
 
 describe('All Expression Class Test', () => {
 	it('Test Binary Expression', () => {
-		const multiplicationExpression = new Binary(2, new Token(TokenType.PLUS, '*', '', 1), 2)
-		const aditionExpresion = new Binary(1, new Token(TokenType.PLUS, '+', '', 1), multiplicationExpression)
-		const subtractionExpression = new Binary(aditionExpresion, new Token(TokenType.MINUS, '-', '', 1), 9)
+		const multiplicationExpression = new Binary(
+			new Literal(2),
+			new Token(TokenType.PLUS, '*', '', 1),
+			new Literal(2)
+		)
+		const aditionExpresion = new Binary(
+			new Literal(1),
+			new Token(TokenType.PLUS, '+', '', 1),
+			multiplicationExpression
+		)
+		const subtractionExpression = new Binary(
+			aditionExpresion,
+			new Token(TokenType.MINUS, '-', '', 1),
+			new Literal(9)
+		)
 
 		expect(multiplicationExpression.left).toBe(2)
 		expect(multiplicationExpression.right).toBe(2)
