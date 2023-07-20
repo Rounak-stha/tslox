@@ -151,7 +151,7 @@ describe('Test Scanner', () => {
             scanner.scanTokens()
         } catch (e) {
             if (e instanceof LoxError) {
-                expect(e.message).toBe('Unterminated String at line: 5')
+                expect(e.message).toBe('[Unterminated String | Line: 5]')
             }
         }
     })
@@ -184,7 +184,7 @@ describe('Test Scanner', () => {
         } catch (e) {
             if (e instanceof LoxError) {
                 if (e.type == 'Unknown Lexeme') {
-                    expect(e.message).toBe('Unknown Lexeme at line: 4')
+                    expect(e.message).toBe('[Unknown Lexeme | Line: 4]')
                 }
             } else {
                 throw e
