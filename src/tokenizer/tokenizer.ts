@@ -83,6 +83,7 @@ export default class Tokenizer {
                 break
             case '*':
                 this.addToken(TokenType.STAR)
+                break
             case '?':
                 this.addToken(TokenType.QUESTION_MARK)
                 break
