@@ -227,7 +227,7 @@ export default class Tokenizer {
      */
     private addToken(type: TokenType, literal?: any) {
         const lexeme = this.source.substring(this.start, this.cursor)
-        this.tokens.push(new Token(type, lexeme, literal ? literal : null, this.line))
+        this.tokens.push(new Token(type, lexeme, literal === 0 || literal ? literal : null, this.line))
     }
 
     /**
