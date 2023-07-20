@@ -2,10 +2,10 @@ import fs from 'fs'
 const outputDir = './src/expression' // run file from the root directory
 
 const types = [
-	'Binary -> left: Expr , operator: Token, right: Expr',
-	'Unary -> operator: Token, right: Expr',
-	'Grouping -> expression: Expr',
-	'Literal -> value: string | number'
+    'Binary -> left: Expr , operator: Token, right: Expr',
+    'Unary -> operator: Token, right: Expr',
+    'Grouping -> expression: Expr',
+    'Literal -> value: string | number',
 ]
 
 // ---------------------------------------------------------------------------------------------
@@ -19,31 +19,31 @@ const types = [
 // But since the book has use the name I am sticking to it for now
 // ---------------------------------------------------------------------------------------------
 function defineAst(outputDir: string, baseName: string, types: string[]) {
-	const path = outputDir + '/' + baseName + '.ts'
-	let code = `import Token from '../tokenizer/Token'
+    const path = outputDir + '/' + baseName + '.ts'
+    let code = `import Token from '../tokenizer/Token'
 
 interface Expr {
 }
 
 `
-	for (let type of types) {
-		const [className, fieldString] = type.split('->').map((s) => s.trim())
-		code += `export class ${className} implements Expr {
+    for (let type of types) {
+        const [className, fieldString] = type.split('->').map((s) => s.trim())
+        code += `export class ${className} implements Expr {
 `
 
-		fieldString.split(',').forEach((field) => (code += '	' + field.trim() + '\n'))
-		code += `	constructor(${fieldString}) {
+        fieldString.split(',').forEach((field) => (code += '	' + field.trim() + '\n'))
+        code += `	constructor(${fieldString}) {
 `
-		fieldString.split(',').forEach((field) => {
-			const fieldName = field.trim().split(':')[0].trim()
-			code += `		this.${fieldName} = ${fieldName}\n`
-		})
-		code += `	}
+        fieldString.split(',').forEach((field) => {
+            const fieldName = field.trim().split(':')[0].trim()
+            code += `		this.${fieldName} = ${fieldName}\n`
+        })
+        code += `	}
 } \n
 `
-	}
+    }
 
-	fs.writeFileSync(path, code, { encoding: 'utf-8' })
+    fs.writeFileSync(path, code, { encoding: 'utf-8' })
 }
 
 defineAst(outputDir, 'expression', types)
