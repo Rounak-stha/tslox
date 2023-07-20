@@ -1,7 +1,7 @@
 import LoxError from '../error/LoxError'
 import Token from '../tokenizer/Token'
 import TokenType from '../tokenizer/TokenType'
-import { Binary, Expr, Grouping, Literal, Unary } from '../expression'
+import { Binary, Expr, Grouping, Literal, Ternary, Unary } from '../expression'
 
 export default class Parser {
     private readonly tokens: Token[]
@@ -20,7 +20,21 @@ export default class Parser {
     }
 
     private expression(): Expr {
-        return this.equality()
+        return this.ternary()
+    }
+
+    private ternary(): Expr {
+        let expr: Expr = this.equality()
+        let first: Expr
+        let second: Expr
+        if (this.match(TokenType.QUESTION_MARK)) {
+            first = this.equality()
+            if (!this.match(TokenType.COLON))
+                throw new LoxError(this.line(), 'Syntax', `':' Expected, Got '${this.currentLexeme()}'`)
+            second = this.equality()
+            return new Ternary(expr, first, second)
+        }
+        return expr
     }
 
     private equality(): Expr {

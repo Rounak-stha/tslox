@@ -83,6 +83,11 @@ export default class Tokenizer {
                 break
             case '*':
                 this.addToken(TokenType.STAR)
+            case '?':
+                this.addToken(TokenType.QUESTION_MARK)
+                break
+            case ':':
+                this.addToken(TokenType.COLON)
                 break
             case '!':
                 // ! can be a standalone token but in our grammar it can also be followed by a =

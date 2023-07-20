@@ -9,6 +9,7 @@ export interface Visitor<T> {
     visitUnaryExpr(expr: Unary): T
     visitGroupingExpr(expr: Grouping): T
     visitLiteralExpr(expr: Literal): T
+    visitTernaryExpression(expr: Ternary): T
 }
 
 export type LiteralValue = string | number | boolean | null
@@ -26,6 +27,22 @@ export class Binary implements Expr {
 
     accept<T>(visitor: Visitor<T>): T {
         return visitor.visitBinaryExpr(this)
+    }
+}
+
+export class Ternary implements Expr {
+    evaluater: Expr
+    first: Expr
+    second: Expr
+
+    constructor(evaluater: Expr, first: Expr, second: Expr) {
+        this.evaluater = evaluater
+        this.first = first
+        this.second = second
+    }
+
+    accept<T>(visitor: Visitor<T>): T {
+        return visitor.visitTernaryExpression(this)
     }
 }
 

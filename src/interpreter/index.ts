@@ -1,5 +1,5 @@
 import LoxError from '../error/LoxError'
-import { Visitor, Expr, Binary, Literal, Unary, Grouping } from '../expression'
+import { Visitor, Expr, Binary, Literal, Unary, Grouping, Ternary } from '../expression'
 import Token from '../tokenizer/Token'
 import TokenType from '../tokenizer/TokenType'
 
@@ -84,6 +84,14 @@ export class Interpreter implements Visitor<unknown> {
 
     private evaluate(expr: Expr) {
         return expr.accept(this)
+    }
+
+    visitTernaryExpression(expr: Ternary): unknown {
+        const evaluater = this.evaluate(expr.evaluater)
+        const first = this.evaluate(expr.first)
+        const second = this.evaluate(expr.second)
+        // using ternary to interpret tenary HA - HA - HA
+        return this.isTruthy(evaluater) ? first : second
     }
 
     // Right now the left and right value is either number or string
