@@ -6,6 +6,7 @@ import Tokenizer from './tokenizer/tokenizer'
 import AstToString from './AstToString'
 import { Interpreter } from './interpreter'
 import { Stmt } from './statement'
+import LoxError from './error/LoxError'
 
 // const astPrinter = new AstToString()
 // console.log(astPrinter.print(result))
@@ -13,10 +14,17 @@ import { Stmt } from './statement'
 const interpreter = new Interpreter()
 
 function run(source: string) {
-    const tokenizer = new Tokenizer(source)
-    tokenizer.scanTokens()
-    const parser = new Parser(tokenizer.Tokens)
-    const statements = parser.parse()
+    let statements: Stmt[] = []
+    try {
+        const tokenizer = new Tokenizer(source)
+        tokenizer.scanTokens()
+        const parser = new Parser(tokenizer.Tokens)
+        statements = parser.parse()
+    } catch (e) {
+        if (e instanceof LoxError) {
+            console.log(e.message)
+        } else throw e
+    }
     interpreter.interpret(statements)
 }
 
