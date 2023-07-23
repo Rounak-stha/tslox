@@ -1,8 +1,11 @@
 import LoxError from '../error/LoxError'
 import Token from '../tokenizer/Token'
 import TokenType from '../tokenizer/TokenType'
-import { Binary, Expr, Grouping, Literal, Ternary, Unary, variable } from '../expression'
+import { Assignment, Binary, Expr, Grouping, Literal, Ternary, Unary, variable } from '../expression'
 import { ExpressionStmt, PrintStmt, Stmt, VarStmt } from '../statement'
+
+// Create a helper function to throw synyax error of this signature
+// SyntaxError(Token, message): void
 
 export default class Parser {
     private readonly tokens: Token[]
@@ -21,7 +24,7 @@ export default class Parser {
     }
 
     private expression(): Expr {
-        return this.ternary()
+        return this.assignment()
     }
 
     /**
@@ -64,7 +67,24 @@ export default class Parser {
      */
     private expressionStatement(): ExpressionStmt {
         const expression: Expr = this.expression()
+        this.consume(TokenType.SEMICOLON, "Expect ';' after expression.")
         return new ExpressionStmt(expression)
+    }
+
+    private assignment(): Expr {
+        const expr = this.ternary()
+
+        if (this.match(TokenType.EQUAL)) {
+            const equals = this.previous()
+            const value: Expr = this.ternary()
+
+            if (expr instanceof variable) {
+                return new Assignment(expr.name, value)
+            }
+
+            throw new LoxError(equals.line, 'Syntax', 'Invalid Assignment Target')
+        }
+        return expr
     }
 
     /**

@@ -11,6 +11,7 @@ export interface ExprVisitor<T> {
     visitLiteralExpr(expr: Literal): T
     visitTernaryExpression(expr: Ternary): T
     visitVariableExpression(expr: variable): T
+    visitAssignmentExpression(expr: Assignment): T
 }
 
 export type LiteralValue = string | number | boolean | null
@@ -92,5 +93,18 @@ export class variable implements Expr {
     }
     accept<T>(visitor: ExprVisitor<T>): T {
         return visitor.visitVariableExpression(this)
+    }
+}
+
+export class Assignment implements Expr {
+    name: Token
+    value: Expr
+    constructor(name: Token, value: Expr) {
+        this.name = name
+        this.value = value
+    }
+
+    accept<T>(visitor: ExprVisitor<T>): T {
+        return visitor.visitAssignmentExpression(this)
     }
 }

@@ -1,3 +1,5 @@
+import Token from '../tokenizer/Token'
+
 type ErrorType = 'Syntax' | 'Unknown Lexeme' | 'Unterminated String' | 'Parse Error' | 'Runtime'
 
 class LoxError extends Error {
@@ -32,6 +34,10 @@ class LoxError extends Error {
                 this.type = type
         }
     }
+}
+
+export function RuntimeError(token: Token, msg: string) {
+    throw new LoxError(token.line, 'Runtime', msg)
 }
 
 export default LoxError

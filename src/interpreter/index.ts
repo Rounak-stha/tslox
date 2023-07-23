@@ -1,6 +1,6 @@
 import { Environment } from '../environment'
-import LoxError from '../error/LoxError'
-import { ExprVisitor, Expr, Binary, Literal, Unary, Grouping, Ternary, variable } from '../expression'
+import LoxError, { RuntimeError } from '../error/LoxError'
+import { ExprVisitor, Expr, Binary, Literal, Unary, Grouping, Ternary, variable, Assignment } from '../expression'
 import { ExpressionStmt, PrintStmt, Stmt, StmtVisitor, VarStmt } from '../statement'
 import Token from '../tokenizer/Token'
 import TokenType from '../tokenizer/TokenType'
@@ -20,9 +20,6 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
             } else throw e
         }
     }
-    RuntimeError(token: Token, msg: string) {
-        throw new LoxError(token.line, 'Runtime', msg)
-    }
 
     visitPrintStmt(stmt: PrintStmt): void {
         const value = this.evaluate(stmt.expression)
@@ -39,6 +36,12 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
             value = this.evaluate(stmt.initializer)
         }
         this.environment.define(stmt.name.lexeme, value)
+    }
+
+    visitAssignmentExpression(expr: Assignment): unknown {
+        const value = this.evaluate(expr.value)
+        this.environment.assign(expr.name, value)
+        return value
     }
 
     visitLiteralExpr(expr: Literal): unknown {
@@ -87,7 +90,7 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
      */
     checkNumberOperand(operator: Token, operand: unknown) {
         if (typeof operand === 'number') return true
-        this.RuntimeError(operator, 'Operand must be a number')
+        RuntimeError(operator, 'Operand must be a number')
     }
 
     /**
@@ -96,7 +99,7 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
      */
     checkNumberOperands(operator: Token, left: unknown, right: unknown) {
         if (typeof left === 'number' && typeof right === 'number') return true
-        this.RuntimeError(operator, 'Operands must be a number')
+        RuntimeError(operator, 'Operands must be a number')
     }
 
     visitGroupingExpr(expr: Grouping): unknown {
@@ -153,7 +156,7 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
             case TokenType.PLUS:
                 if (typeof left === 'number' && typeof right === 'number') return (left as number) + (right as number)
                 if (typeof left === 'string' && typeof right === 'string') return (left as string) + (right as string)
-                this.RuntimeError(expr.operator, 'Operators must be a number or string')
+                RuntimeError(expr.operator, 'Operators must be a number or string')
             case TokenType.STAR:
                 this.checkNumberOperands(expr.operator, left, right)
                 return (left as number) * (right as number)
