@@ -1,15 +1,19 @@
+import { Environment } from '../environment'
 import LoxError from '../error/LoxError'
-import { Visitor, Expr, Binary, Literal, Unary, Grouping, Ternary } from '../expression'
+import { ExprVisitor, Expr, Binary, Literal, Unary, Grouping, Ternary, variable } from '../expression'
+import { ExpressionStmt, PrintStmt, Stmt, StmtVisitor, VarStmt } from '../statement'
 import Token from '../tokenizer/Token'
 import TokenType from '../tokenizer/TokenType'
 
 // Visitor which visits the expression and inerprets it and
 // returns any value, so the T in Visitor<T> is unknown
-export class Interpreter implements Visitor<unknown> {
-    interpret(expr: Expr): void {
+export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
+    environment = new Environment()
+    interpret(statements: Stmt[]): void {
         try {
-            const value = this.evaluate(expr)
-            console.log(value)
+            for (let statement of statements) {
+                this.execute(statement)
+            }
         } catch (e) {
             if (e instanceof LoxError) {
                 console.log(e.message)
@@ -18,6 +22,23 @@ export class Interpreter implements Visitor<unknown> {
     }
     RuntimeError(token: Token, msg: string) {
         throw new LoxError(token.line, 'Runtime', msg)
+    }
+
+    visitPrintStmt(stmt: PrintStmt): void {
+        const value = this.evaluate(stmt.expression)
+        console.log(value)
+    }
+
+    visitExpressionStmt(stmt: ExpressionStmt): void {
+        this.evaluate(stmt.expression)
+    }
+
+    visitVarStmt(stmt: VarStmt): void {
+        let value = null
+        if (stmt.initializer) {
+            value = this.evaluate(stmt.initializer)
+        }
+        this.environment.define(stmt.name.lexeme, value)
     }
 
     visitLiteralExpr(expr: Literal): unknown {
@@ -84,6 +105,15 @@ export class Interpreter implements Visitor<unknown> {
 
     private evaluate(expr: Expr) {
         return expr.accept(this)
+    }
+
+    private execute(stmt: Stmt) {
+        stmt.accept(this)
+    }
+
+    visitVariableExpression(expr: variable) {
+        const name = expr.name.lexeme
+        return this.environment.get(name)
     }
 
     visitTernaryExpression(expr: Ternary): unknown {

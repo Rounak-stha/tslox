@@ -1,7 +1,8 @@
 import LoxError from '../error/LoxError'
 import Token from '../tokenizer/Token'
 import TokenType from '../tokenizer/TokenType'
-import { Binary, Expr, Grouping, Literal, Ternary, Unary } from '../expression'
+import { Binary, Expr, Grouping, Literal, Ternary, Unary, variable } from '../expression'
+import { ExpressionStmt, PrintStmt, Stmt, VarStmt } from '../statement'
 
 export default class Parser {
     private readonly tokens: Token[]
@@ -11,18 +12,65 @@ export default class Parser {
         this.tokens = tokens
     }
 
-    parse(): Expr | void {
-        try {
-            return this.expression()
-        } catch (e) {
-            console.log(e)
+    parse(): Stmt[] {
+        const statements: Stmt[] = []
+        while (!this.isAtEnd()) {
+            statements.push(this.declaration())
         }
+        return statements
     }
 
     private expression(): Expr {
         return this.ternary()
     }
 
+    /**
+     * Parses Statement
+     * @returns Stmt
+     */
+    private statement() {
+        if (this.match(TokenType.PRINT)) return this.printStatement()
+        return this.expressionStatement()
+    }
+
+    private declaration(): Stmt {
+        if (this.match(TokenType.VAR)) return this.varDeclaration()
+        return this.statement()
+    }
+
+    private varDeclaration() {
+        const name = this.consume(TokenType.IDENTIFIER, 'Expected Varible Name')
+        let initializer: Expr | null = null
+        if (this.match(TokenType.EQUAL)) {
+            initializer = this.expression()
+        }
+        this.consume(TokenType.SEMICOLON, "Expected ';' after variable declaration")
+        return new VarStmt(name, initializer)
+    }
+
+    /**
+     * Parse Print Statement
+     * @returns PrintStmt
+     */
+    private printStatement(): Stmt {
+        const expression: Expr = this.expression()
+        this.consume(TokenType.SEMICOLON, "Expected ';' after value")
+        return new PrintStmt(expression)
+    }
+
+    /**
+     * Parse Expression Statement
+     * @returns ExpressionStmt
+     */
+    private expressionStatement(): ExpressionStmt {
+        const expression: Expr = this.expression()
+        return new ExpressionStmt(expression)
+    }
+
+    /**
+     * Parse Ternary Expression
+     * @returns Ternary
+     */
     private ternary(): Expr {
         let expr: Expr = this.equality()
         let first: Expr
@@ -37,6 +85,10 @@ export default class Parser {
         return expr
     }
 
+    /**
+     * Parses Equality
+     * @returns Binary Expression
+     */
     private equality(): Expr {
         let expr: Expr = this.comparision()
 
@@ -106,6 +158,10 @@ export default class Parser {
             let expr: Expr = this.expression()
             this.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
             return new Grouping(expr)
+        }
+
+        if (this.match(TokenType.IDENTIFIER)) {
+            return new variable(this.previous())
         }
         throw new LoxError(this.line(), 'Syntax', `Expression Expected, Got '${this.currentLexeme()}'`)
     }
@@ -177,6 +233,6 @@ export default class Parser {
      * Checks if the cursor reached the end of the Token List
      */
     private isAtEnd() {
-        return this.currTokenIndex >= this.tokens.length
+        return this.peek().type === TokenType.EOF
     }
 }

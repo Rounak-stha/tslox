@@ -1,15 +1,17 @@
 import fs from 'fs'
-const outputDir = './src/expression' // run file from the root directory
+const outputDir = './src' // run file from the root directory
 
-const types = [
+const expressionTypes = [
     'Binary -> left: Expr , operator: Token, right: Expr',
     'Unary -> operator: Token, right: Expr',
     'Grouping -> expression: Expr',
     'Literal -> value: string | number',
 ]
 
+const statementTypes = ['Expression -> expression: Expr', 'Print -> expression: Expr']
+
 // ---------------------------------------------------------------------------------------------
-// The string literal formatting matters for proper format of the generated code
+// The 'string literal formatting' matters for proper format of the generated code
 // Yes, formatters like prettier does it's job but the format of the generated code
 // can help debug faster as we can point out the syntax error of our code faster without
 // any help from formatters
@@ -46,4 +48,5 @@ interface Expr {
     fs.writeFileSync(path, code, { encoding: 'utf-8' })
 }
 
-defineAst(outputDir, 'expression', types)
+defineAst(outputDir, 'expression', expressionTypes)
+defineAst(outputDir, 'statement', statementTypes)

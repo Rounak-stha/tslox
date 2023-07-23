@@ -5,17 +5,19 @@ import Parser from './parser'
 import Tokenizer from './tokenizer/tokenizer'
 import AstToString from './AstToString'
 import { Interpreter } from './interpreter'
+import { Stmt } from './statement'
 
 // const astPrinter = new AstToString()
 // console.log(astPrinter.print(result))
 
+const interpreter = new Interpreter()
+
 function run(source: string) {
-    const interpreter = new Interpreter()
     const tokenizer = new Tokenizer(source)
     tokenizer.scanTokens()
     const parser = new Parser(tokenizer.Tokens)
-    const expr = parser.parse()
-    interpreter.interpret(expr as Expr)
+    const statements = parser.parse()
+    interpreter.interpret(statements)
 }
 
 function runFile(filePath: string) {
