@@ -1,4 +1,4 @@
-import { Binary, Unary, Grouping, Literal, Expr } from '../src/expression'
+import { Binary, Unary, Grouping, Literal, Expr, Assignment } from '../src/expression'
 import Token from '../src/tokenizer/Token'
 import TokenType from '../src/tokenizer/TokenType'
 
@@ -41,5 +41,14 @@ describe('All Expression Class Test', () => {
 
         expect(negationUnary.operator).toEqual(new Token(TokenType.BANG, '!', '', 1))
         expect(negationUnary.right).toBe(booleanLiteralFalse)
+    })
+
+    it('Test Assignment Expression', () => {
+        const assinmentExpr = new Assignment(new Token(TokenType.IDENTIFIER, 'name', null, 1), new Literal(1))
+
+        expect(assinmentExpr).toEqual({
+            name: { type: 'IDENTIFIER', lexeme: 'name', literal: null, line: 1 },
+            value: { value: 1 },
+        })
     })
 })
