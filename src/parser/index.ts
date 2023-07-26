@@ -10,16 +10,27 @@ import { ExpressionStmt, PrintStmt, Stmt, VarStmt } from '../statement'
 export default class Parser {
     private readonly tokens: Token[]
     private currTokenIndex = 0
+    private hadError = false
+    errors: LoxError[] = []
 
     constructor(tokens: Token[]) {
         this.tokens = tokens
     }
 
-    parse(): Stmt[] {
+    parse(): Stmt[] | null {
         const statements: Stmt[] = []
         while (!this.isAtEnd()) {
-            statements.push(this.declaration())
+            try {
+                statements.push(this.declaration())
+            } catch (e) {
+                if (e instanceof LoxError) {
+                    this.hadError = true
+                    this.errors.push(e)
+                    this.synchronize()
+                } else throw e
+            }
         }
+        if (this.hadError) return null
         return statements
     }
 
@@ -36,6 +47,11 @@ export default class Parser {
         return this.expressionStatement()
     }
 
+    /**
+     * Declaration is top level statement which calls the other statement parsers
+     * If the parsers throws an error, this sets the hadError field to true and returns null
+     * Else returns the parsed statement
+     */
     private declaration(): Stmt {
         if (this.match(TokenType.VAR)) return this.varDeclaration()
         return this.statement()
@@ -76,7 +92,7 @@ export default class Parser {
 
         if (this.match(TokenType.EQUAL)) {
             const equals = this.previous()
-            const value: Expr = this.ternary()
+            const value: Expr = this.assignment()
 
             if (expr instanceof variable) {
                 return new Assignment(expr.name, value)
@@ -183,7 +199,7 @@ export default class Parser {
         if (this.match(TokenType.IDENTIFIER)) {
             return new variable(this.previous())
         }
-        throw new LoxError(this.line(), 'Syntax', `Expression Expected, Got '${this.currentLexeme()}'`)
+        throw new LoxError(this.previous().line, 'Syntax', `Expression Expected, Got '${this.currentLexeme()}'`)
     }
 
     private currentLexeme(): string {
@@ -239,10 +255,11 @@ export default class Parser {
      */
     private consume(type: TokenType, message: string): Token {
         if (this.check(type)) return this.advance()
-        throw new LoxError(this.tokens[this.currTokenIndex].line, 'Syntax', message)
+        throw new LoxError(this.previous().line, 'Syntax', message)
     }
 
     /**
+     * Peeks the current token and returns it
      * @returns Current Token
      */
     private peek(): Token {
@@ -254,5 +271,26 @@ export default class Parser {
      */
     private isAtEnd() {
         return this.peek().type === TokenType.EOF
+    }
+
+    private synchronize(): void {
+        // this.advance()
+
+        while (!this.isAtEnd()) {
+            switch (this.peek().type) {
+                case TokenType.SEMICOLON:
+                    this.advance()
+                    return
+                case TokenType.CLASS:
+                case TokenType.VAR:
+                case TokenType.FOR:
+                case TokenType.IF:
+                case TokenType.WHILE:
+                case TokenType.PRINT:
+                case TokenType.RETURN:
+                    return
+            }
+            this.advance()
+        }
     }
 }

@@ -14,18 +14,20 @@ import LoxError from './error/LoxError'
 const interpreter = new Interpreter()
 
 function run(source: string) {
-    let statements: Stmt[] = []
+    let statements: Stmt[] | null = []
     try {
         const tokenizer = new Tokenizer(source)
         tokenizer.scanTokens()
         const parser = new Parser(tokenizer.Tokens)
         statements = parser.parse()
+        if (statements === null) return
+        // console.log(JSON.stringify(statements, null, 2))
+        interpreter.interpret(statements as Stmt[])
     } catch (e) {
         if (e instanceof LoxError) {
             console.log(e.message)
         } else throw e
     }
-    interpreter.interpret(statements)
 }
 
 function runFile(filePath: string) {

@@ -1,0 +1,3 @@
+var a = 1;
+var b;
+var sum = 1 + 1;
