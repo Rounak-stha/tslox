@@ -106,10 +106,18 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
         return this.evaluate(expr.expression)
     }
 
+    /**
+     * Evaluates the value of an expression by calling the accept method on it.
+     * @param expr
+     */
     private evaluate(expr: Expr) {
         return expr.accept(this)
     }
 
+    /**
+     * Executes the statement by calling the accept method on the statement
+     * @param stmt
+     */
     private execute(stmt: Stmt) {
         stmt.accept(this)
     }
@@ -129,7 +137,7 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
 
     // Right now the left and right value is either number or string
     // I do not yet know what other values can the 2 leaf nodes can take.
-    // The current impementation of specifying the values as known and then
+    // The current impementation of specifying the values as unknown and then
     // letting TS know the type using "as" is quite hectic since the type
     // checked before returning any value so the type is as expected before
     // we reach the return statement
