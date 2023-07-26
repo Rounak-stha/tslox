@@ -11,6 +11,7 @@ export default class Parser {
     private readonly tokens: Token[]
     private currTokenIndex = 0
     private hadError = false
+    errors: LoxError[] = []
 
     constructor(tokens: Token[]) {
         this.tokens = tokens
@@ -20,11 +21,11 @@ export default class Parser {
         const statements: Stmt[] = []
         while (!this.isAtEnd()) {
             try {
-                const statement = this.declaration()
-                if (statement) statements.push()
+                statements.push(this.declaration())
             } catch (e) {
                 if (e instanceof LoxError) {
                     this.hadError = true
+                    this.errors.push(e)
                     console.log(e.message)
                     this.synchronize()
                 } else throw e
