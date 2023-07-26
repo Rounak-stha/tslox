@@ -26,7 +26,6 @@ export default class Parser {
                 if (e instanceof LoxError) {
                     this.hadError = true
                     this.errors.push(e)
-                    console.log(e.message)
                     this.synchronize()
                 } else throw e
             }
