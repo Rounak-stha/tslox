@@ -5,6 +5,7 @@ export interface StmtVisitor<T> {
     visitExpressionStmt(stmt: ExpressionStmt): T
     visitPrintStmt(stmt: PrintStmt): T
     visitVarStmt(stmt: VarStmt): T
+    VisitBlockStmt(stmt: BlockStmt): T
 }
 
 export abstract class Stmt {
@@ -44,5 +45,16 @@ export class VarStmt implements Stmt {
 
     accept<T>(visitor: StmtVisitor<T>): T {
         return visitor.visitVarStmt(this)
+    }
+}
+
+export class BlockStmt implements Stmt {
+    statements: Stmt[]
+    constructor(statements: Stmt[]) {
+        this.statements = statements
+    }
+
+    accept<T>(visitor: StmtVisitor<T>): T {
+        return visitor.VisitBlockStmt(this)
     }
 }

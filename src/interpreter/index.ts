@@ -1,7 +1,7 @@
 import { Environment } from '../environment'
 import LoxError, { RuntimeError } from '../error/LoxError'
 import { ExprVisitor, Expr, Binary, Literal, Unary, Grouping, Ternary, variable, Assignment } from '../expression'
-import { ExpressionStmt, PrintStmt, Stmt, StmtVisitor, VarStmt } from '../statement'
+import { BlockStmt, ExpressionStmt, PrintStmt, Stmt, StmtVisitor, VarStmt } from '../statement'
 import Token from '../tokenizer/Token'
 import TokenType from '../tokenizer/TokenType'
 
@@ -36,6 +36,19 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
             value = this.evaluate(stmt.initializer)
         }
         this.environment.define(stmt.name.lexeme, value)
+    }
+
+    VisitBlockStmt(stmt: BlockStmt): void {
+        this.executeBlock(stmt.statements, new Environment(this.environment))
+    }
+
+    private executeBlock(statements: Stmt[], env: Environment) {
+        const prevEnv = this.environment
+        this.environment = env
+        for (let statement of statements) {
+            this.execute(statement)
+        }
+        this.environment = prevEnv
     }
 
     visitAssignmentExpression(expr: Assignment): unknown {

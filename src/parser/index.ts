@@ -2,7 +2,7 @@ import LoxError from '../error/LoxError'
 import Token from '../tokenizer/Token'
 import TokenType from '../tokenizer/TokenType'
 import { Assignment, Binary, Expr, Grouping, Literal, Ternary, Unary, variable } from '../expression'
-import { ExpressionStmt, PrintStmt, Stmt, VarStmt } from '../statement'
+import { BlockStmt, ExpressionStmt, PrintStmt, Stmt, VarStmt } from '../statement'
 
 // Create a helper function to throw synyax error of this signature
 // SyntaxError(Token, message): void
@@ -25,6 +25,7 @@ export default class Parser {
             } catch (e) {
                 if (e instanceof LoxError) {
                     this.hadError = true
+                    console.log(e.message)
                     this.errors.push(e)
                     this.synchronize()
                 } else throw e
@@ -39,15 +40,6 @@ export default class Parser {
     }
 
     /**
-     * Parses Statement
-     * @returns Stmt
-     */
-    private statement() {
-        if (this.match(TokenType.PRINT)) return this.printStatement()
-        return this.expressionStatement()
-    }
-
-    /**
      * Declaration is top level statement which calls the other statement parsers
      * If the parsers throws an error, this sets the hadError field to true and returns null
      * Else returns the parsed statement
@@ -55,6 +47,16 @@ export default class Parser {
     private declaration(): Stmt {
         if (this.match(TokenType.VAR)) return this.varDeclaration()
         return this.statement()
+    }
+
+    /**
+     * Parses Statement
+     * @returns Stmt
+     */
+    private statement() {
+        if (this.match(TokenType.PRINT)) return this.printStatement()
+        if (this.match(TokenType.LEFT_BRACE)) return this.blockStatement()
+        return this.expressionStatement()
     }
 
     private varDeclaration() {
@@ -65,6 +67,22 @@ export default class Parser {
         }
         this.consume(TokenType.SEMICOLON, "Expected ';' after variable declaration")
         return new VarStmt(name, initializer)
+    }
+
+    /**
+     *
+     */
+    private blockStatement(): Stmt {
+        return new BlockStmt(this.block())
+    }
+
+    private block(): Stmt[] {
+        const statements: Stmt[] = []
+        while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
+            statements.push(this.declaration())
+        }
+        this.consume(TokenType.RIGHT_BRACE, "Expect '}' after block")
+        return statements
     }
 
     /**
