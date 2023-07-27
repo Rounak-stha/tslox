@@ -1,5 +1,5 @@
 import { Binary, Literal } from '../src/expression'
-import { PrintStmt, VarStmt, ExpressionStmt } from '../src/statement'
+import { PrintStmt, VarStmt, ExpressionStmt, BlockStmt } from '../src/statement'
 import Token from '../src/tokenizer/Token'
 import TokenType from '../src/tokenizer/TokenType'
 
@@ -49,5 +49,17 @@ describe('Test Statement', () => {
                 right: { value: 2 },
             },
         })
+    })
+
+    it('Test Block Statement', () => {
+        const blockstmt1 = new BlockStmt([])
+        const blockStmt2 = new BlockStmt([
+            new PrintStmt(new Binary(new Literal(1), new Token(TokenType.PLUS, '+', null, 1), new Literal(2))),
+            new ExpressionStmt(new Binary(new Literal(1), new Token(TokenType.STAR, '*', null, 1), new Literal(2)))
+        ])
+
+        expect(blockstmt1.statements.length).toEqual(0)
+        expect(blockStmt2.statements.length).toEqual(2)
+
     })
 })
