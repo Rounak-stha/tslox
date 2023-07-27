@@ -2,7 +2,7 @@ import Tokenizer from '../src/tokenizer/tokenizer'
 import Parser from '../src/parser'
 import { ExpressionStmt, PrintStmt, Stmt, VarStmt } from '../src/statement'
 import LoxError from '../src/error/LoxError'
-import { Assignment, Binary } from '../src/expression'
+import { Assignment, Binary, Ternary } from '../src/expression'
 
 function parse(source: string): Stmt[] {
     const tokenizer = new Tokenizer(source)
@@ -17,7 +17,7 @@ function parse(source: string): Stmt[] {
 }
 
 describe('Test Parser', () => {
-    it('Test Parser Result', () => {
+    it('Test Parse Var Dec. Assignment and Print Stmts', () => {
         const source = `
         var a = 1;
         var b;
@@ -35,6 +35,15 @@ describe('Test Parser', () => {
         expect((statements[2] as ExpressionStmt).expression).toBeInstanceOf(Assignment)
         expect(statements[3]).toBeInstanceOf(PrintStmt)
         expect((statements[3] as PrintStmt).expression).toBeInstanceOf(Binary)
+    })
+
+    it('Test Parse Ternary', () => {
+        const source = `a = b == 1 ? true : false;`
+        const statement = parse(source)[0]
+
+        expect(statement).toBeInstanceOf(ExpressionStmt)
+        expect((statement as ExpressionStmt).expression).toBeInstanceOf(Assignment)
+        expect(((statement as ExpressionStmt).expression as Assignment).value).toBeInstanceOf(Ternary)
     })
 
     it('Test Parser Errors', () => {
