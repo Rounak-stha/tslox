@@ -9,6 +9,7 @@ export interface ExprVisitor<T> {
     visitUnaryExpr(expr: Unary): T
     visitGroupingExpr(expr: Grouping): T
     visitLiteralExpr(expr: Literal): T
+    visitLogicalExpr(expr: Logical): T
     visitTernaryExpression(expr: Ternary): T
     visitVariableExpression(expr: variable): T
     visitAssignmentExpression(expr: Assignment): T
@@ -83,6 +84,21 @@ export class Literal implements Expr {
 
     accept<T>(visitor: ExprVisitor<T>): T {
         return visitor.visitLiteralExpr(this)
+    }
+}
+
+export class Logical implements Expr {
+    left: Expr
+    operator: Token
+    right: Expr
+    constructor(left: Expr, operator: Token, right: Expr) {
+        this.left = left
+        this.operator = operator
+        this.right = right
+    }
+
+    accept<T>(visitor: ExprVisitor<T>): T {
+        return visitor.visitLogicalExpr(this)
     }
 }
 

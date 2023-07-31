@@ -3,6 +3,7 @@ import Token from '../tokenizer/Token'
 
 export interface StmtVisitor<T> {
     visitExpressionStmt(stmt: ExpressionStmt): T
+    visitIfStmt(stmt: IfStmt): T
     visitPrintStmt(stmt: PrintStmt): T
     visitVarStmt(stmt: VarStmt): T
     VisitBlockStmt(stmt: BlockStmt): T
@@ -20,6 +21,21 @@ export class ExpressionStmt implements Stmt {
 
     accept<T>(visitor: StmtVisitor<T>): T {
         return visitor.visitExpressionStmt(this)
+    }
+}
+
+export class IfStmt implements Stmt {
+    condition: Expr
+    thenBranch: Stmt
+    elseBranch: Stmt | null
+    constructor(condition: Expr, thenBranch: Stmt, elseBranch: Stmt | null) {
+        this.condition = condition
+        this.thenBranch = thenBranch
+        this.elseBranch = elseBranch
+    }
+
+    accept<T>(visitor: StmtVisitor<T>): T {
+        return visitor.visitIfStmt(this)
     }
 }
 

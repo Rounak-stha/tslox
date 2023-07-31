@@ -8,7 +8,7 @@ function run(source: string) {
     tokenizer.scanTokens()
     const parser = new Parser(tokenizer.Tokens)
     const expr = parser.parse()
-    if (expr) console.log(expr)
+    if (expr) console.log(JSON.stringify(expr, null, 4))
 }
 
 function runFile(filePath: string) {
