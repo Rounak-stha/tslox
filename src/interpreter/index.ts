@@ -12,7 +12,7 @@ import {
     Assignment,
     Logical,
 } from '../expression'
-import { BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt, StmtVisitor, VarStmt } from '../statement'
+import { BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt, StmtVisitor, VarStmt, WhileStmt } from '../statement'
 import Token from '../tokenizer/Token'
 import TokenType from '../tokenizer/TokenType'
 
@@ -40,6 +40,12 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
             if (this.isTruthy(left)) return left
         }
         return this.evaluate(expr.right)
+    }
+
+    visitWhileStmt(stmt: WhileStmt): void {
+        while (this.isTruthy(this.evaluate(stmt.condition))) {
+            this.execute(stmt.body)
+        }
     }
 
     visitIfStmt(stmt: IfStmt): void {
@@ -164,7 +170,14 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
 
     visitVariableExpression(expr: variable) {
         const name = expr.name.lexeme
-        return this.environment.get(name)
+        try {
+            return this.environment.get(name)
+        } catch (e) {
+            console.log(e)
+            if (e === 'Undefined Variable')
+                throw new LoxError(expr.name.line, 'Runtime', `Undefined Variable '${expr.name.lexeme}'`)
+            else throw e
+        }
     }
 
     visitTernaryExpression(expr: Ternary): unknown {

@@ -1,4 +1,4 @@
-import { RuntimeError } from '../error/LoxError'
+import LoxError, { RuntimeError } from '../error/LoxError'
 import Token from '../tokenizer/Token'
 
 export class Environment {
@@ -23,7 +23,7 @@ export class Environment {
     get(name: string): unknown {
         if (this.values.has(name)) return this.values.get(name)
         if (this.parentEnv !== null) return this.parentEnv.get(name)
-        return null
+        throw 'Undefined Variable'
     }
 
     /**

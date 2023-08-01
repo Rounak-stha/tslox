@@ -2,6 +2,7 @@ import { Expr } from '../expression'
 import Token from '../tokenizer/Token'
 
 export interface StmtVisitor<T> {
+    visitWhileStmt(stmt: WhileStmt): T
     visitExpressionStmt(stmt: ExpressionStmt): T
     visitIfStmt(stmt: IfStmt): T
     visitPrintStmt(stmt: PrintStmt): T
@@ -11,6 +12,20 @@ export interface StmtVisitor<T> {
 
 export abstract class Stmt {
     abstract accept<T>(visitor: StmtVisitor<T>): T
+}
+
+export class WhileStmt implements Stmt {
+    condition: Expr
+    body: Stmt
+
+    constructor(condition: Expr, body: Stmt) {
+        this.condition = condition
+        this.body = body
+    }
+
+    accept<T>(visitor: StmtVisitor<T>): T {
+        return visitor.visitWhileStmt(this)
+    }
 }
 
 export class ExpressionStmt implements Stmt {
