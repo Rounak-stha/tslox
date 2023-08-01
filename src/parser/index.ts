@@ -1,8 +1,8 @@
 import LoxError from '../error/LoxError'
 import Token from '../tokenizer/Token'
 import TokenType from '../tokenizer/TokenType'
-import { Assignment, Binary, Expr, Grouping, Literal, Ternary, Unary, variable } from '../expression'
-import { BlockStmt, ExpressionStmt, PrintStmt, Stmt, VarStmt } from '../statement'
+import { Assignment, Binary, Expr, Grouping, Literal, Logical, Ternary, Unary, variable } from '../expression'
+import { BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt, VarStmt } from '../statement'
 
 // Create a helper function to throw synyax error of this signature
 // SyntaxError(Token, message): void
@@ -54,6 +54,7 @@ export default class Parser {
      * @returns Stmt
      */
     private statement() {
+        if (this.match(TokenType.IF)) return this.ifStatement()
         if (this.match(TokenType.PRINT)) return this.printStatement()
         if (this.match(TokenType.LEFT_BRACE)) return this.blockStatement()
         return this.expressionStatement()
@@ -86,6 +87,19 @@ export default class Parser {
     }
 
     /**
+     * Parses If Statement
+     */
+    private ifStatement(): Stmt {
+        this.consume(TokenType.LEFT_PAREN, "Expected '(' after 'if'.")
+        const condition = this.expression()
+        this.consume(TokenType.RIGHT_PAREN, "Expected ')' after if condition.")
+        const thenBranch = this.statement()
+        let elseBranch: Stmt | null = null
+        if (this.match(TokenType.ELSE)) elseBranch = this.statement()
+        return new IfStmt(condition, thenBranch, elseBranch)
+    }
+
+    /**
      * Parse Print Statement
      * @returns PrintStmt
      */
@@ -106,7 +120,7 @@ export default class Parser {
     }
 
     private assignment(): Expr {
-        const expr = this.ternary()
+        const expr = this.or()
 
         if (this.match(TokenType.EQUAL)) {
             const equals = this.previous()
@@ -117,6 +131,32 @@ export default class Parser {
             }
 
             throw new LoxError(equals.line, 'Syntax', 'Invalid Assignment Target')
+        }
+        return expr
+    }
+
+    /**
+     * Parse Logical OR
+     */
+    private or(): Expr {
+        let expr = this.and()
+        if (this.match(TokenType.OR)) {
+            const operator = this.previous()
+            const right = this.expression()
+            expr = new Logical(expr, operator, right)
+        }
+        return expr
+    }
+
+    /**
+     * Parse Logical AND
+     */
+    private and(): Expr {
+        let expr = this.ternary()
+        if (this.match(TokenType.AND)) {
+            const operator = this.previous()
+            const right = this.expression()
+            expr = new Logical(expr, operator, right)
         }
         return expr
     }

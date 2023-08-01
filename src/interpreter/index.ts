@@ -1,7 +1,18 @@
 import { Environment } from '../environment'
 import LoxError, { RuntimeError } from '../error/LoxError'
-import { ExprVisitor, Expr, Binary, Literal, Unary, Grouping, Ternary, variable, Assignment } from '../expression'
-import { BlockStmt, ExpressionStmt, PrintStmt, Stmt, StmtVisitor, VarStmt } from '../statement'
+import {
+    ExprVisitor,
+    Expr,
+    Binary,
+    Literal,
+    Unary,
+    Grouping,
+    Ternary,
+    variable,
+    Assignment,
+    Logical,
+} from '../expression'
+import { BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt, StmtVisitor, VarStmt } from '../statement'
 import Token from '../tokenizer/Token'
 import TokenType from '../tokenizer/TokenType'
 
@@ -19,6 +30,22 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
                 console.log(e.message)
             } else throw e
         }
+    }
+
+    visitLogicalExpr(expr: Logical): unknown {
+        const left = this.evaluate(expr.left)
+        if (expr.operator.type === TokenType.AND) {
+            if (!this.isTruthy(left)) return left
+        } else {
+            if (this.isTruthy(left)) return left
+        }
+        return this.evaluate(expr.right)
+    }
+
+    visitIfStmt(stmt: IfStmt): void {
+        if (this.isTruthy(this.evaluate(stmt.condition))) {
+            this.execute(stmt.thenBranch)
+        } else if (stmt.elseBranch) this.execute(stmt.elseBranch)
     }
 
     visitPrintStmt(stmt: PrintStmt): void {
