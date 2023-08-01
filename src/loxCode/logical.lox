@@ -1,0 +1,5 @@
+print true or 1; // Must print true
+print true and 1; // Must Print 1
+
+print false or 1; // Must print 1
+print false and 1; // Must Print false

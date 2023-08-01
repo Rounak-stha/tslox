@@ -14,3 +14,4 @@ var a = 1;
 	print a;
 }
 print a;
+print 1 + 1;
