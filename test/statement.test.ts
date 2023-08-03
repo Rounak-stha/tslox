@@ -1,5 +1,5 @@
-import { Binary, Literal } from '../src/expression'
-import { PrintStmt, VarStmt, ExpressionStmt, BlockStmt } from '../src/statement'
+import { Binary, Literal, variable } from '../src/expression'
+import { PrintStmt, VarStmt, ExpressionStmt, BlockStmt, WhileStmt, IfStmt } from '../src/statement'
 import Token from '../src/tokenizer/Token'
 import TokenType from '../src/tokenizer/TokenType'
 
@@ -55,11 +55,61 @@ describe('Test Statement', () => {
         const blockstmt1 = new BlockStmt([])
         const blockStmt2 = new BlockStmt([
             new PrintStmt(new Binary(new Literal(1), new Token(TokenType.PLUS, '+', null, 1), new Literal(2))),
-            new ExpressionStmt(new Binary(new Literal(1), new Token(TokenType.STAR, '*', null, 1), new Literal(2)))
+            new ExpressionStmt(new Binary(new Literal(1), new Token(TokenType.STAR, '*', null, 1), new Literal(2))),
         ])
 
         expect(blockstmt1.statements.length).toEqual(0)
         expect(blockStmt2.statements.length).toEqual(2)
+    })
 
+    it('Test If Statement', () => {
+        const ifStmt = new IfStmt(
+            new Binary(
+                new variable(new Token(TokenType.IDENTIFIER, 'a', 'a', 1)),
+                new Token(TokenType.LESS, '<', null, 1),
+                new Literal(1)
+            ),
+            new BlockStmt([]),
+            new BlockStmt([])
+        )
+
+        expect(ifStmt).toEqual({
+            condition: {
+                left: {
+                    name: { type: TokenType.IDENTIFIER, lexeme: 'a', literal: 'a', line: 1 },
+                },
+                operator: { type: TokenType.LESS, lexeme: '<', literal: null, line: 1 },
+                right: { value: 1 },
+            },
+            thenBranch: {
+                statements: [],
+            },
+            elseBranch: {
+                statements: [],
+            },
+        })
+    })
+
+    it('Test While Loop Statement', () => {
+        const whileStatement = new WhileStmt(
+            new Binary(
+                new variable(new Token(TokenType.IDENTIFIER, 'a', 'a', 1)),
+                new Token(TokenType.LESS, '<', null, 1),
+                new Literal(1)
+            ),
+            new BlockStmt([])
+        )
+        expect(whileStatement).toEqual({
+            condition: {
+                left: {
+                    name: { type: TokenType.IDENTIFIER, lexeme: 'a', literal: 'a', line: 1 },
+                },
+                operator: { type: TokenType.LESS, lexeme: '<', literal: null, line: 1 },
+                right: { value: 1 },
+            },
+            body: {
+                statements: [],
+            },
+        })
     })
 })
