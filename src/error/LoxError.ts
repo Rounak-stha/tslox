@@ -18,19 +18,24 @@ class LoxError extends Error {
                 this.code = 402
                 this.type = type
                 break
+            case 'Parse Error':
+                super(`[Parse Error | Line: ${line}]${message ? ' ' + message : ''}`)
+                this.code = 403
+                this.type = type
+                break
             case 'Unterminated String':
                 super(`[Unterminated String | Line: ${line}]${message ? ' ' + message : ''}`)
-                this.code = 403
+                this.code = 404
                 this.type = type
                 break
             case 'Runtime':
                 super(`[Runtime Error | Line: ${line}]${message ? ' ' + message : ''}`)
-                this.code = 403
+                this.code = 405
                 this.type = type
                 break
             default:
                 super('Unknown Error')
-                this.code = 400
+                this.code = 406
                 this.type = type
         }
     }
