@@ -13,6 +13,7 @@ export interface ExprVisitor<T> {
     visitTernaryExpression(expr: Ternary): T
     visitVariableExpression(expr: variable): T
     visitAssignmentExpression(expr: Assignment): T
+    visitCallExpression(expr: CallExpr): T
 }
 
 export type LiteralValue = string | number | boolean | null
@@ -100,6 +101,23 @@ export class Logical implements Expr {
     accept<T>(visitor: ExprVisitor<T>): T {
         return visitor.visitLogicalExpr(this)
     }
+}
+
+export class CallExpr implements Expr {
+    callee: Expr
+    args: Expr[]
+    endParen: Token
+
+    constructor(callee: Expr, args: Expr[], endParen: Token) {
+        this.callee = callee
+        this.args = args
+        this.endParen = endParen
+    }
+
+    accept<T>(visitor: ExprVisitor<T>): T {
+        return visitor.visitCallExpression(this)
+    }
+
 }
 
 export class variable implements Expr {

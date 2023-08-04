@@ -1,7 +1,7 @@
 import LoxError from '../error/LoxError'
 import Token from '../tokenizer/Token'
 import TokenType from '../tokenizer/TokenType'
-import { Assignment, Binary, Expr, Grouping, Literal, Logical, Ternary, Unary, variable } from '../expression'
+import { Assignment, Binary, CallExpr, Expr, Grouping, Literal, Logical, Ternary, Unary, variable } from '../expression'
 import { BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt, VarStmt, WhileStmt } from '../statement'
 
 // Create a helper function to throw synyax error of this signature
@@ -278,7 +278,28 @@ export default class Parser {
             return new Unary(operator, right)
         }
 
-        return this.primary()
+        return this.call()
+    }
+
+    private call(): Expr {
+        let expr = this.primary()
+        while (this.match(TokenType.LEFT_PAREN)) {
+            expr = this.parseCall(expr)
+        }
+        return expr
+    }
+
+    private parseCall(callee: Expr): CallExpr {
+        const args: Expr[] = []
+        if (!this.check(TokenType.RIGHT_PAREN)) {
+            args.push(this.primary())
+        }
+        while (this.match(TokenType.COMMA)) {
+            args.push(this.expression())
+            if (args.length > 2) throw new LoxError(this.peek().line, 'Parse Error', 'Maximum Arguments Length is 255')
+        }
+        this.consume(TokenType.RIGHT_PAREN, "Expected ')' after arguments")
+        return new CallExpr(callee, args, this.previous())
     }
 
     private primary(): Expr {
