@@ -1,4 +1,4 @@
-import { Binary, Unary, Grouping, Literal, Expr, Assignment } from '../src/expression'
+import { Binary, Unary, Grouping, Literal, Expr, Assignment, Ternary } from '../src/expression'
 import Token from '../src/tokenizer/Token'
 import TokenType from '../src/tokenizer/TokenType'
 
@@ -49,6 +49,16 @@ describe('All Expression Class Test', () => {
         expect(assinmentExpr).toEqual({
             name: { type: 'IDENTIFIER', lexeme: 'name', literal: null, line: 1 },
             value: { value: 1 },
+        })
+    })
+
+    it('Test Ternary Expression', () => {
+        const ternaryExpr = new Ternary(new Literal(true), new Literal(1), new Literal(2))
+
+        expect(ternaryExpr).toEqual({
+            evaluater: { value: true },
+            first: { value: 1 },
+            second: { value: 2 },
         })
     })
 })

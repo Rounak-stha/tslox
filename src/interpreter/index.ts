@@ -11,10 +11,12 @@ import {
     variable,
     Assignment,
     Logical,
+    CallExpr,
 } from '../expression'
-import { BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt, StmtVisitor, VarStmt } from '../statement'
+import { BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt, StmtVisitor, VarStmt, WhileStmt } from '../statement'
 import Token from '../tokenizer/Token'
 import TokenType from '../tokenizer/TokenType'
+import { Callable } from '../types'
 
 // Visitor which visits the expression and inerprets it and
 // returns any value, so the T in Visitor<T> is unknown
@@ -40,6 +42,12 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
             if (this.isTruthy(left)) return left
         }
         return this.evaluate(expr.right)
+    }
+
+    visitWhileStmt(stmt: WhileStmt): void {
+        while (this.isTruthy(this.evaluate(stmt.condition))) {
+            this.execute(stmt.body)
+        }
     }
 
     visitIfStmt(stmt: IfStmt): void {
@@ -164,7 +172,25 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
 
     visitVariableExpression(expr: variable) {
         const name = expr.name.lexeme
-        return this.environment.get(name)
+        try {
+            return this.environment.get(name)
+        } catch (e) {
+            console.log(e)
+            if (e === 'Undefined Variable')
+                throw new LoxError(expr.name.line, 'Runtime', `Undefined Variable '${expr.name.lexeme}'`)
+            else throw e
+        }
+    }
+
+    visitCallExpression(expr: CallExpr): unknown {
+        const callee = this.evaluate(expr.callee)
+        const args: unknown[] = []
+        for (let arg of expr.args) {
+            args.push(this.evaluate(arg))
+        }
+        // if (!(callee instanceof Callable)) {}
+        const func = callee as Callable
+        return func.call(this, args)
     }
 
     visitTernaryExpression(expr: Ternary): unknown {

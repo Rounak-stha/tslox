@@ -1,8 +1,8 @@
 import LoxError from '../error/LoxError'
 import Token from '../tokenizer/Token'
 import TokenType from '../tokenizer/TokenType'
-import { Assignment, Binary, Expr, Grouping, Literal, Logical, Ternary, Unary, variable } from '../expression'
-import { BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt, VarStmt } from '../statement'
+import { Assignment, Binary, CallExpr, Expr, Grouping, Literal, Logical, Ternary, Unary, variable } from '../expression'
+import { BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt, VarStmt, WhileStmt } from '../statement'
 
 // Create a helper function to throw synyax error of this signature
 // SyntaxError(Token, message): void
@@ -54,6 +54,8 @@ export default class Parser {
      * @returns Stmt
      */
     private statement() {
+        if (this.match(TokenType.WHILE)) return this.whileLoop()
+        if (this.match(TokenType.FOR)) return this.forLoop()
         if (this.match(TokenType.IF)) return this.ifStatement()
         if (this.match(TokenType.PRINT)) return this.printStatement()
         if (this.match(TokenType.LEFT_BRACE)) return this.blockStatement()
@@ -71,7 +73,47 @@ export default class Parser {
     }
 
     /**
-     *
+     * Parse While Loop
+     */
+    private whileLoop(): Stmt {
+        this.consume(TokenType.LEFT_PAREN, "Expected '(' after while")
+        const condition: Expr = this.expression()
+        this.consume(TokenType.RIGHT_PAREN, "Expected ')' after loop condition")
+        const body = this.statement()
+        return new WhileStmt(condition, body)
+    }
+
+    /**
+     * Parse For Loop
+     */
+    private forLoop(): Stmt {
+        this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'")
+        let initializer: Stmt | null = null
+        let condition: Expr | null = null
+        let incrementer: Expr | null = null
+
+        if (this.match(TokenType.SEMICOLON)) {
+        } else {
+            if (this.match(TokenType.VAR)) initializer = this.varDeclaration()
+            else initializer = this.expressionStatement()
+        }
+        if (!this.check(TokenType.SEMICOLON)) {
+            condition = this.expression()
+        }
+        this.consume(TokenType.SEMICOLON, "Expect ';' after loop condition")
+        if (!this.check(TokenType.RIGHT_PAREN)) {
+            incrementer = this.expression()
+        }
+        this.consume(TokenType.RIGHT_PAREN, "Expect ')' after clauses")
+        let body = this.statement()
+        if (incrementer) body = new BlockStmt([body, new ExpressionStmt(incrementer)])
+        body = new WhileStmt(condition ? condition : new Literal(true), body)
+        if (initializer) body = new BlockStmt([initializer, body])
+        return body
+    }
+
+    /**
+     * Parse Block Statement
      */
     private blockStatement(): Stmt {
         return new BlockStmt(this.block())
@@ -236,7 +278,28 @@ export default class Parser {
             return new Unary(operator, right)
         }
 
-        return this.primary()
+        return this.call()
+    }
+
+    private call(): Expr {
+        let expr = this.primary()
+        while (this.match(TokenType.LEFT_PAREN)) {
+            expr = this.parseCall(expr)
+        }
+        return expr
+    }
+
+    private parseCall(callee: Expr): CallExpr {
+        const args: Expr[] = []
+        if (!this.check(TokenType.RIGHT_PAREN)) {
+            args.push(this.primary())
+        }
+        while (this.match(TokenType.COMMA)) {
+            args.push(this.expression())
+            if (args.length > 2) throw new LoxError(this.peek().line, 'Parse Error', 'Maximum Arguments Length is 255')
+        }
+        this.consume(TokenType.RIGHT_PAREN, "Expected ')' after arguments")
+        return new CallExpr(callee, args, this.previous())
     }
 
     private primary(): Expr {
