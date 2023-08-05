@@ -2,7 +2,17 @@ import LoxError from '../error/LoxError'
 import Token from '../tokenizer/Token'
 import TokenType from '../tokenizer/TokenType'
 import { Assignment, Binary, CallExpr, Expr, Grouping, Literal, Logical, Ternary, Unary, variable } from '../expression'
-import { BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt, VarStmt, WhileStmt } from '../statement'
+import {
+    BlockStmt,
+    ExpressionStmt,
+    FunctionStmt,
+    IfStmt,
+    PrintStmt,
+    ReturnStmt,
+    Stmt,
+    VarStmt,
+    WhileStmt,
+} from '../statement'
 
 // Create a helper function to throw synyax error of this signature
 // SyntaxError(Token, message): void
@@ -45,6 +55,7 @@ export default class Parser {
      * Else returns the parsed statement
      */
     private declaration(): Stmt {
+        if (this.match(TokenType.FUN)) return this.funcDeclaration('function')
         if (this.match(TokenType.VAR)) return this.varDeclaration()
         return this.statement()
     }
@@ -57,9 +68,42 @@ export default class Parser {
         if (this.match(TokenType.WHILE)) return this.whileLoop()
         if (this.match(TokenType.FOR)) return this.forLoop()
         if (this.match(TokenType.IF)) return this.ifStatement()
+        if (this.match(TokenType.RETURN)) return this.returnStmt()
         if (this.match(TokenType.PRINT)) return this.printStatement()
         if (this.match(TokenType.LEFT_BRACE)) return this.blockStatement()
         return this.expressionStatement()
+    }
+
+    /**
+     *
+     * @param kind { function | method }
+     */
+    private funcDeclaration(kind: 'function' | 'method') {
+        const name = this.consume(TokenType.IDENTIFIER, `Expected ${kind} name.`)
+        const parameters: Token[] = []
+        this.consume(TokenType.LEFT_PAREN, `Expected '(' after ${kind} name.`)
+        if (!this.check(TokenType.RIGHT_PAREN)) {
+            parameters.push(this.consume(TokenType.IDENTIFIER, 'Expected parameter name.'))
+            while (this.match(TokenType.COMMA)) {
+                if (parameters.length === 255)
+                    throw new LoxError(this.peek().line, 'Parse Error', 'Maximum Arguments Length is 255')
+                parameters.push(this.consume(TokenType.IDENTIFIER, 'Expected parameter name.'))
+            }
+        }
+        this.consume(TokenType.RIGHT_PAREN, "Expected ')' after parameters.")
+        this.consume(TokenType.LEFT_BRACE, `Expected '{' before ${kind} body.`)
+        const body = this.block()
+        return new FunctionStmt(name, parameters, body)
+    }
+
+    private returnStmt(): ReturnStmt {
+        const token = this.previous()
+        let value = null
+        if (!this.check(TokenType.SEMICOLON)) {
+            value = this.expression()
+        }
+        this.consume(TokenType.SEMICOLON, "Expect ';' after return statement")
+        return new ReturnStmt(token, value)
     }
 
     private varDeclaration() {

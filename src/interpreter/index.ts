@@ -1,5 +1,7 @@
+import { Function } from '../Function'
 import { Environment } from '../environment'
 import LoxError, { RuntimeError } from '../error/LoxError'
+import { Return } from '../error/Return'
 import {
     ExprVisitor,
     Expr,
@@ -13,15 +15,40 @@ import {
     Logical,
     CallExpr,
 } from '../expression'
-import { BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt, StmtVisitor, VarStmt, WhileStmt } from '../statement'
+import {
+    BlockStmt,
+    ExpressionStmt,
+    FunctionStmt,
+    IfStmt,
+    PrintStmt,
+    ReturnStmt,
+    Stmt,
+    StmtVisitor,
+    VarStmt,
+    WhileStmt,
+} from '../statement'
 import Token from '../tokenizer/Token'
 import TokenType from '../tokenizer/TokenType'
 import { Callable } from '../types'
 
+function isCallable(obj: any): obj is Callable {
+    return 'call' in obj
+}
+
 // Visitor which visits the expression and inerprets it and
 // returns any value, so the T in Visitor<T> is unknown
 export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
-    environment = new Environment()
+    globals = new Environment()
+    private environment = this.globals
+
+    constructor() {
+        const clock: Callable = {
+            arity: 0,
+            call: () => Date.now(),
+            toString: () => '<Native func clock()>',
+        }
+        this.globals.define('clock', clock)
+    }
     interpret(statements: Stmt[]): void {
         try {
             for (let statement of statements) {
@@ -32,6 +59,14 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
                 console.log(e.message)
             } else throw e
         }
+    }
+
+    visitReturnStmt(stmt: ReturnStmt): void {
+        let value = null
+        if (stmt.value) value = this.evaluate(stmt.value)
+        // caught by visitCallExpr
+        // Might need a better name for this placeholder error return type
+        throw new Return(value)
     }
 
     visitLogicalExpr(expr: Logical): unknown {
@@ -73,11 +108,16 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
         this.environment.define(stmt.name.lexeme, value)
     }
 
+    visitFunctionStmt(stmt: FunctionStmt): void {
+        const funcDecl = new Function(stmt, this.environment)
+        this.environment.define(stmt.name.lexeme, funcDecl)
+    }
+
     VisitBlockStmt(stmt: BlockStmt): void {
         this.executeBlock(stmt.statements, new Environment(this.environment))
     }
 
-    private executeBlock(statements: Stmt[], env: Environment) {
+    executeBlock(statements: Stmt[], env: Environment) {
         const prevEnv = this.environment
         this.environment = env
         for (let statement of statements) {
@@ -188,7 +228,17 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
         for (let arg of expr.args) {
             args.push(this.evaluate(arg))
         }
-        // if (!(callee instanceof Callable)) {}
+        // check if expression is callable
+        // "string"() -> this expressin is not callable
+        if (!isCallable(callee)) throw new LoxError(expr.endParen.line, 'Syntax', 'Uncallable Expression.')
+
+        // check arity
+        if (args.length != callee.arity)
+            throw new LoxError(
+                expr.endParen.line,
+                'Parse Error',
+                `Exprcted ${callee.arity} number of arguments, got ${args.length}.`
+            )
         const func = callee as Callable
         return func.call(this, args)
     }

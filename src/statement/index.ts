@@ -8,6 +8,8 @@ export interface StmtVisitor<T> {
     visitPrintStmt(stmt: PrintStmt): T
     visitVarStmt(stmt: VarStmt): T
     VisitBlockStmt(stmt: BlockStmt): T
+    visitFunctionStmt(stmt: FunctionStmt): T
+    visitReturnStmt(stmt: ReturnStmt): T
 }
 
 export abstract class Stmt {
@@ -25,6 +27,38 @@ export class WhileStmt implements Stmt {
 
     accept<T>(visitor: StmtVisitor<T>): T {
         return visitor.visitWhileStmt(this)
+    }
+}
+
+export class FunctionStmt implements Stmt {
+    name: Token
+    parameters: Token[]
+    body: Stmt[]
+
+    constructor(name: Token, parameters: Token[], body: Stmt[]) {
+        this.name = name
+        this.parameters = parameters
+        this.body = body
+    }
+
+    accept<T>(visitor: StmtVisitor<T>): T {
+        return visitor.visitFunctionStmt(this)
+    }
+}
+
+/**
+ * Token - Return Keyword Token for location data
+ */
+export class ReturnStmt implements Stmt {
+    token: Token
+    value: Expr | null
+    constructor(token: Token, value: Expr | null) {
+        this.token = token
+        this.value = value
+    }
+
+    accept<T>(visitor: StmtVisitor<T>): T {
+        return visitor.visitReturnStmt(this)
     }
 }
 
