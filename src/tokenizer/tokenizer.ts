@@ -44,7 +44,7 @@ export default class Tokenizer {
             this.start = this.cursor
             this.scanToken()
         }
-        this.tokens.push(new Token(TokenType.EOF, '', null, this.line))
+        this.tokens.push(new Token(TokenType.EOF, '', null, this.line, this.cursor, this.cursor))
     }
 
     /**
@@ -227,7 +227,9 @@ export default class Tokenizer {
      */
     private addToken(type: TokenType, literal?: any) {
         const lexeme = this.source.substring(this.start, this.cursor)
-        this.tokens.push(new Token(type, lexeme, literal === 0 || literal ? literal : null, this.line))
+        this.tokens.push(
+            new Token(type, lexeme, literal === 0 || literal ? literal : null, this.line, this.start, this.cursor)
+        )
     }
 
     /**

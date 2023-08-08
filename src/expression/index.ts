@@ -1,7 +1,16 @@
 import Token from '../tokenizer/Token'
+import { Node } from '../types'
 
-export abstract class Expr {
+export abstract class Expr implements Node {
+    abstract type: string
+    from: number
+    to: number
     abstract accept<T>(visitor: ExprVisitor<T>): T
+
+    constructor(from: number, to: number) {
+        this.from = from
+        this.to = to
+    }
 }
 
 export interface ExprVisitor<T> {
@@ -18,12 +27,14 @@ export interface ExprVisitor<T> {
 
 export type LiteralValue = string | number | boolean | null
 
-export class Binary implements Expr {
+export class Binary extends Expr {
+    type: string = 'BinaryExpression'
     left: Expr
     operator: Token
     right: Expr
 
-    constructor(left: Expr, operator: Token, right: Expr) {
+    constructor(left: Expr, operator: Token, right: Expr, from: number, to: number) {
+        super(from, to)
         this.left = left
         this.operator = operator
         this.right = right
@@ -34,12 +45,14 @@ export class Binary implements Expr {
     }
 }
 
-export class Ternary implements Expr {
+export class Ternary extends Expr {
+    type = 'TernaryExpression'
     evaluater: Expr
     first: Expr
     second: Expr
 
-    constructor(evaluater: Expr, first: Expr, second: Expr) {
+    constructor(evaluater: Expr, first: Expr, second: Expr, from: number, to: number) {
+        super(from, to)
         this.evaluater = evaluater
         this.first = first
         this.second = second
@@ -50,11 +63,13 @@ export class Ternary implements Expr {
     }
 }
 
-export class Unary implements Expr {
+export class Unary extends Expr {
+    type = 'UnaryExpression'
     operator: Token
     right: Expr
 
-    constructor(operator: Token, right: Expr) {
+    constructor(operator: Token, right: Expr, from: number, to: number) {
+        super(from, to)
         this.operator = operator
         this.right = right
     }
@@ -64,10 +79,12 @@ export class Unary implements Expr {
     }
 }
 
-export class Grouping implements Expr {
+export class Grouping extends Expr {
+    type = 'GroupingExpression'
     expression: Expr
 
-    constructor(expression: Expr) {
+    constructor(expression: Expr, from: number, to: number) {
+        super(from, to)
         this.expression = expression
     }
 
@@ -76,10 +93,12 @@ export class Grouping implements Expr {
     }
 }
 
-export class Literal implements Expr {
+export class Literal extends Expr {
+    type = 'LiteralExpression'
     value: LiteralValue
 
-    constructor(value: LiteralValue) {
+    constructor(value: LiteralValue, from: number, to: number) {
+        super(from, to)
         this.value = value
     }
 
@@ -88,11 +107,14 @@ export class Literal implements Expr {
     }
 }
 
-export class Logical implements Expr {
+export class Logical extends Expr {
+    type = 'LogicalExpression'
     left: Expr
     operator: Token
     right: Expr
-    constructor(left: Expr, operator: Token, right: Expr) {
+
+    constructor(left: Expr, operator: Token, right: Expr, from: number, to: number) {
+        super(from, to)
         this.left = left
         this.operator = operator
         this.right = right
@@ -103,12 +125,14 @@ export class Logical implements Expr {
     }
 }
 
-export class CallExpr implements Expr {
+export class CallExpr extends Expr {
+    type = 'CallExpression'
     callee: Expr
     args: Expr[]
     endParen: Token
 
-    constructor(callee: Expr, args: Expr[], endParen: Token) {
+    constructor(callee: Expr, args: Expr[], endParen: Token, from: number, to: number) {
+        super(from, to)
         this.callee = callee
         this.args = args
         this.endParen = endParen
@@ -117,12 +141,14 @@ export class CallExpr implements Expr {
     accept<T>(visitor: ExprVisitor<T>): T {
         return visitor.visitCallExpression(this)
     }
-
 }
 
-export class variable implements Expr {
+export class variable extends Expr {
+    type = 'VariableExpression'
     name: Token
-    constructor(name: Token) {
+
+    constructor(name: Token, from: number, to: number) {
+        super(from, to)
         this.name = name
     }
     accept<T>(visitor: ExprVisitor<T>): T {
@@ -130,10 +156,13 @@ export class variable implements Expr {
     }
 }
 
-export class Assignment implements Expr {
+export class Assignment extends Expr {
+    type = 'AssignmentExpression'
     name: Token
     value: Expr
-    constructor(name: Token, value: Expr) {
+
+    constructor(name: Token, value: Expr, from: number, to: number) {
+        super(from, to)
         this.name = name
         this.value = value
     }
