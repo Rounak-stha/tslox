@@ -114,7 +114,7 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
     }
 
     VisitBlockStmt(stmt: BlockStmt): void {
-        this.executeBlock(stmt.statements, new Environment(this.environment))
+        this.executeBlock(stmt.body, new Environment(this.environment))
     }
 
     executeBlock(statements: Stmt[], env: Environment) {

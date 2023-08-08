@@ -1,8 +1,8 @@
 import Tokenizer from '../src/tokenizer/tokenizer'
 import Parser from '../src/parser'
-import { BlockStmt, ExpressionStmt, PrintStmt, Stmt, VarStmt } from '../src/statement'
+import { BlockStmt, ExpressionStmt, FunctionStmt, PrintStmt, Stmt, VarStmt } from '../src/statement'
 import LoxError from '../src/error/LoxError'
-import { Assignment, Binary, Ternary } from '../src/expression'
+import { Assignment, Binary, CallExpr, Ternary } from '../src/expression'
 
 function parse(source: string): Stmt[] {
     const tokenizer = new Tokenizer(source)
@@ -35,6 +35,21 @@ describe('Test Parser', () => {
         expect((statements[2] as ExpressionStmt).expression).toBeInstanceOf(Assignment)
         expect(statements[3]).toBeInstanceOf(PrintStmt)
         expect((statements[3] as PrintStmt).expression).toBeInstanceOf(Binary)
+    })
+
+    it('Test Parse Function Dec. stmt. and Call Exp', () => {
+        const source = `fun nuname() {
+    var a = 1;
+    print a;
+}
+nuname();
+`
+        const tree = parse(source)
+
+        expect(tree.length).toBe(2)
+        expect(tree[0]).toBeInstanceOf(FunctionStmt)
+        expect(tree[1]).toBeInstanceOf(ExpressionStmt)
+        expect((tree[1] as ExpressionStmt).expression).toBeInstanceOf(CallExpr)
     })
 
     it('Test Parse Ternary', () => {
@@ -71,11 +86,11 @@ print a;
         const statement = statements[0]
         expect(statement).toBeInstanceOf(BlockStmt)
 
-        const innerStatements = (statement as BlockStmt).statements
+        const innerStatements = (statement as BlockStmt).body
         const innerBlock = innerStatements[1]
 
         expect(innerBlock).toBeInstanceOf(BlockStmt)
-        expect((innerBlock as BlockStmt).statements[4]).toBeInstanceOf(BlockStmt)
+        expect((innerBlock as BlockStmt).body[4]).toBeInstanceOf(BlockStmt)
     })
 
     it('Test Parser Errors', () => {

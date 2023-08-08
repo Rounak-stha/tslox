@@ -1,5 +1,6 @@
 import { Expr } from '../expression'
 import Token from '../tokenizer/Token'
+import { Node } from '../types'
 
 export interface StmtVisitor<T> {
     visitWhileStmt(stmt: WhileStmt): T
@@ -12,15 +13,25 @@ export interface StmtVisitor<T> {
     visitReturnStmt(stmt: ReturnStmt): T
 }
 
-export abstract class Stmt {
+export abstract class Stmt implements Node {
+    abstract type: string
+    from: number
+    to: number
     abstract accept<T>(visitor: StmtVisitor<T>): T
+
+    constructor(from: number, to: number) {
+        this.from = from
+        this.to = to
+    }
 }
 
-export class WhileStmt implements Stmt {
+export class WhileStmt extends Stmt {
+    type = 'WhileLoop'
     condition: Expr
     body: Stmt
 
-    constructor(condition: Expr, body: Stmt) {
+    constructor(condition: Expr, body: Stmt, from: number, to: number) {
+        super(from, to)
         this.condition = condition
         this.body = body
     }
@@ -30,12 +41,14 @@ export class WhileStmt implements Stmt {
     }
 }
 
-export class FunctionStmt implements Stmt {
+export class FunctionStmt extends Stmt {
+    type = 'FunctionDeclaration'
     name: Token
     parameters: Token[]
     body: Stmt[]
 
-    constructor(name: Token, parameters: Token[], body: Stmt[]) {
+    constructor(name: Token, parameters: Token[], body: Stmt[], from: number, to: number) {
+        super(from, to)
         this.name = name
         this.parameters = parameters
         this.body = body
@@ -49,10 +62,13 @@ export class FunctionStmt implements Stmt {
 /**
  * Token - Return Keyword Token for location data
  */
-export class ReturnStmt implements Stmt {
+export class ReturnStmt extends Stmt {
+    type = 'ReturnStatement'
     token: Token
     value: Expr | null
-    constructor(token: Token, value: Expr | null) {
+
+    constructor(token: Token, value: Expr | null, from: number, to: number) {
+        super(from, to)
         this.token = token
         this.value = value
     }
@@ -62,9 +78,12 @@ export class ReturnStmt implements Stmt {
     }
 }
 
-export class ExpressionStmt implements Stmt {
+export class ExpressionStmt extends Stmt {
+    type = 'ExpressionStatement'
     expression: Expr
-    constructor(expression: Expr) {
+
+    constructor(expression: Expr, from: number, to: number) {
+        super(from, to)
         this.expression = expression
     }
 
@@ -73,11 +92,14 @@ export class ExpressionStmt implements Stmt {
     }
 }
 
-export class IfStmt implements Stmt {
+export class IfStmt extends Stmt {
+    type = 'IfStatement'
     condition: Expr
     thenBranch: Stmt
     elseBranch: Stmt | null
-    constructor(condition: Expr, thenBranch: Stmt, elseBranch: Stmt | null) {
+
+    constructor(condition: Expr, thenBranch: Stmt, elseBranch: Stmt | null, from: number, to: number) {
+        super(from, to)
         this.condition = condition
         this.thenBranch = thenBranch
         this.elseBranch = elseBranch
@@ -88,10 +110,12 @@ export class IfStmt implements Stmt {
     }
 }
 
-export class PrintStmt implements Stmt {
+export class PrintStmt extends Stmt {
+    type = 'PrintStatement'
     expression: Expr
 
-    constructor(expression: Expr) {
+    constructor(expression: Expr, from: number, to: number) {
+        super(from, to)
         this.expression = expression
     }
 
@@ -100,10 +124,13 @@ export class PrintStmt implements Stmt {
     }
 }
 
-export class VarStmt implements Stmt {
+export class VarStmt extends Stmt {
+    type = 'VarStatement'
     name: Token
     initializer: Expr | null
-    constructor(name: Token, initializer: Expr | null) {
+
+    constructor(name: Token, initializer: Expr | null, from: number, to: number) {
+        super(from, to)
         this.name = name
         this.initializer = initializer
     }
@@ -113,10 +140,13 @@ export class VarStmt implements Stmt {
     }
 }
 
-export class BlockStmt implements Stmt {
-    statements: Stmt[]
-    constructor(statements: Stmt[]) {
-        this.statements = statements
+export class BlockStmt extends Stmt {
+    type = 'BlockStatement'
+    body: Stmt[]
+
+    constructor(statements: Stmt[], from: number, to: number) {
+        super(from, to)
+        this.body = statements
     }
 
     accept<T>(visitor: StmtVisitor<T>): T {

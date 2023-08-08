@@ -54,6 +54,9 @@ export default class Parser {
      * If the parsers throws an error, this sets the hadError field to true and returns null
      * Else returns the parsed statement
      */
+    // NOTE: Since, the start of each statement except for expression statement is indicated by a token
+    // the start of statement is indicated by the token start position
+    // and Ending by a semicolon except for Function Declaration and Block Statement
     private declaration(): Stmt {
         if (this.match(TokenType.FUN)) return this.funcDeclaration('function')
         if (this.match(TokenType.VAR)) return this.varDeclaration()
@@ -79,6 +82,7 @@ export default class Parser {
      * @param kind { function | method }
      */
     private funcDeclaration(kind: 'function' | 'method') {
+        const from = this.previous().from
         const name = this.consume(TokenType.IDENTIFIER, `Expected ${kind} name.`)
         const parameters: Token[] = []
         this.consume(TokenType.LEFT_PAREN, `Expected '(' after ${kind} name.`)
@@ -93,44 +97,50 @@ export default class Parser {
         this.consume(TokenType.RIGHT_PAREN, "Expected ')' after parameters.")
         this.consume(TokenType.LEFT_BRACE, `Expected '{' before ${kind} body.`)
         const body = this.block()
-        return new FunctionStmt(name, parameters, body)
+        // The this.previous() below must return the function body's closing brace token
+        // which would be the ending of the function declaration
+        return new FunctionStmt(name, parameters, body, from, this.previous().to)
     }
 
     private returnStmt(): ReturnStmt {
+        const from = this.previous().from
         const token = this.previous()
         let value = null
         if (!this.check(TokenType.SEMICOLON)) {
             value = this.expression()
         }
         this.consume(TokenType.SEMICOLON, "Expect ';' after return statement")
-        return new ReturnStmt(token, value)
+        return new ReturnStmt(token, value, from, this.previous().to)
     }
 
     private varDeclaration() {
+        const from = this.previous().from
         const name = this.consume(TokenType.IDENTIFIER, 'Expected Varible Name')
         let initializer: Expr | null = null
         if (this.match(TokenType.EQUAL)) {
             initializer = this.expression()
         }
-        this.consume(TokenType.SEMICOLON, "Expected ';' after variable declaration")
-        return new VarStmt(name, initializer)
+        const semi = this.consume(TokenType.SEMICOLON, "Expected ';' after variable declaration")
+        return new VarStmt(name, initializer, from, semi.to)
     }
 
     /**
      * Parse While Loop
      */
     private whileLoop(): Stmt {
+        const from = this.previous().from
         this.consume(TokenType.LEFT_PAREN, "Expected '(' after while")
         const condition: Expr = this.expression()
         this.consume(TokenType.RIGHT_PAREN, "Expected ')' after loop condition")
         const body = this.statement()
-        return new WhileStmt(condition, body)
+        return new WhileStmt(condition, body, from, this.previous().to)
     }
 
     /**
      * Parse For Loop
      */
     private forLoop(): Stmt {
+        const from = this.previous().from
         this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'")
         let initializer: Stmt | null = null
         let condition: Expr | null = null
@@ -150,9 +160,20 @@ export default class Parser {
         }
         this.consume(TokenType.RIGHT_PAREN, "Expect ')' after clauses")
         let body = this.statement()
-        if (incrementer) body = new BlockStmt([body, new ExpressionStmt(incrementer)])
-        body = new WhileStmt(condition ? condition : new Literal(true), body)
-        if (initializer) body = new BlockStmt([initializer, body])
+        if (incrementer)
+            body = new BlockStmt(
+                [body, new ExpressionStmt(incrementer, incrementer.from, incrementer.to)],
+                body.from,
+                incrementer.to
+            )
+        // TO-DO : The location of the literal below is not exact: Fix it
+        body = new WhileStmt(
+            condition ? condition : new Literal(true, this.previous().from, this.previous().from),
+            body,
+            from,
+            body.to
+        )
+        if (initializer) body = new BlockStmt([initializer, body], from, body.to)
         return body
     }
 
@@ -160,7 +181,9 @@ export default class Parser {
      * Parse Block Statement
      */
     private blockStatement(): Stmt {
-        return new BlockStmt(this.block())
+        const from = this.previous().from
+        const block = this.block()
+        return new BlockStmt(block, from, this.previous().to)
     }
 
     private block(): Stmt[] {
@@ -176,13 +199,14 @@ export default class Parser {
      * Parses If Statement
      */
     private ifStatement(): Stmt {
+        const from = this.previous().from
         this.consume(TokenType.LEFT_PAREN, "Expected '(' after 'if'.")
         const condition = this.expression()
         this.consume(TokenType.RIGHT_PAREN, "Expected ')' after if condition.")
         const thenBranch = this.statement()
         let elseBranch: Stmt | null = null
         if (this.match(TokenType.ELSE)) elseBranch = this.statement()
-        return new IfStmt(condition, thenBranch, elseBranch)
+        return new IfStmt(condition, thenBranch, elseBranch, from, this.previous().to)
     }
 
     /**
@@ -190,9 +214,10 @@ export default class Parser {
      * @returns PrintStmt
      */
     private printStatement(): Stmt {
+        const from = this.previous().from
         const expression: Expr = this.expression()
         this.consume(TokenType.SEMICOLON, "Expected ';' after value")
-        return new PrintStmt(expression)
+        return new PrintStmt(expression, from, this.previous().to)
     }
 
     /**
@@ -201,8 +226,8 @@ export default class Parser {
      */
     private expressionStatement(): ExpressionStmt {
         const expression: Expr = this.expression()
-        this.consume(TokenType.SEMICOLON, "Expect ';' after expression.")
-        return new ExpressionStmt(expression)
+        const semi = this.consume(TokenType.SEMICOLON, "Expect ';' after expression.")
+        return new ExpressionStmt(expression, expression.from, semi.to)
     }
 
     private assignment(): Expr {
@@ -213,7 +238,7 @@ export default class Parser {
             const value: Expr = this.assignment()
 
             if (expr instanceof variable) {
-                return new Assignment(expr.name, value)
+                return new Assignment(expr.name, value, expr.from, value.to)
             }
 
             throw new LoxError(equals.line, 'Syntax', 'Invalid Assignment Target')
@@ -229,7 +254,7 @@ export default class Parser {
         if (this.match(TokenType.OR)) {
             const operator = this.previous()
             const right = this.expression()
-            expr = new Logical(expr, operator, right)
+            expr = new Logical(expr, operator, right, expr.from, right.to)
         }
         return expr
     }
@@ -242,7 +267,7 @@ export default class Parser {
         if (this.match(TokenType.AND)) {
             const operator = this.previous()
             const right = this.expression()
-            expr = new Logical(expr, operator, right)
+            expr = new Logical(expr, operator, right, expr.from, right.to)
         }
         return expr
     }
@@ -260,7 +285,7 @@ export default class Parser {
             if (!this.match(TokenType.COLON))
                 throw new LoxError(this.line(), 'Syntax', `':' Expected, Got '${this.currentLexeme()}'`)
             second = this.equality()
-            return new Ternary(expr, first, second)
+            return new Ternary(expr, first, second, expr.from, second.to)
         }
         return expr
     }
@@ -275,7 +300,7 @@ export default class Parser {
         while (this.match(TokenType.EQUAL_EQUAL, TokenType.BANG_EQUAL)) {
             let operator: Token = this.previous()
             let right: Expr = this.comparision()
-            expr = new Binary(expr, operator, right)
+            expr = new Binary(expr, operator, right, expr.from, right.to)
         }
         return expr
     }
@@ -286,7 +311,7 @@ export default class Parser {
         while (this.match(TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL)) {
             let operator: Token = this.previous()
             let right: Expr = this.term()
-            expr = new Binary(expr, operator, right)
+            expr = new Binary(expr, operator, right, expr.from, right.to)
         }
         return expr
     }
@@ -297,7 +322,7 @@ export default class Parser {
         while (this.match(TokenType.MINUS, TokenType.PLUS)) {
             let operator: Token = this.previous()
             let right: Expr = this.factor()
-            expr = new Binary(expr, operator, right)
+            expr = new Binary(expr, operator, right, expr.from, right.to)
         }
 
         return expr
@@ -309,7 +334,7 @@ export default class Parser {
         while (this.match(TokenType.SLASH, TokenType.STAR)) {
             let operator: Token = this.previous()
             let right: Expr = this.unary()
-            expr = new Binary(expr, operator, right)
+            expr = new Binary(expr, operator, right, expr.from, right.to)
         }
 
         return expr
@@ -319,7 +344,7 @@ export default class Parser {
         if (this.match(TokenType.BANG, TokenType.MINUS)) {
             let operator: Token = this.previous()
             let right: Expr = this.unary()
-            return new Unary(operator, right)
+            return new Unary(operator, right, operator.from, right.to)
         }
 
         return this.call()
@@ -334,6 +359,7 @@ export default class Parser {
     }
 
     private parseCall(callee: Expr): CallExpr {
+        const from = callee.from
         const args: Expr[] = []
         if (!this.check(TokenType.RIGHT_PAREN)) {
             args.push(this.primary())
@@ -343,28 +369,34 @@ export default class Parser {
             if (args.length > 2) throw new LoxError(this.peek().line, 'Parse Error', 'Maximum Arguments Length is 255')
         }
         this.consume(TokenType.RIGHT_PAREN, "Expected ')' after arguments")
-        return new CallExpr(callee, args, this.previous())
+        const to = this.previous().to
+        console.log('Call Expr', from, to)
+        return new CallExpr(callee, args, this.previous(), from, to)
     }
 
     private primary(): Expr {
-        if (this.match(TokenType.FALSE)) return new Literal(false)
-        if (this.match(TokenType.TRUE)) return new Literal(true)
-        if (this.match(TokenType.NIL)) return new Literal(null)
+        const token = this.peek()
+        const from = token.from
+        const to = token.to
+
+        if (this.match(TokenType.FALSE)) return new Literal(false, from, to)
+        if (this.match(TokenType.TRUE)) return new Literal(true, from, to)
+        if (this.match(TokenType.NIL)) return new Literal(null, from, to)
 
         if (this.match(TokenType.NUMBER, TokenType.STRING)) {
-            return new Literal(this.previous().literal)
+            return new Literal(token.literal, from, to)
         }
 
         if (this.match(TokenType.LEFT_PAREN)) {
             let expr: Expr = this.expression()
             this.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
-            return new Grouping(expr)
+            return new Grouping(expr, from, to)
         }
 
         if (this.match(TokenType.IDENTIFIER)) {
-            return new variable(this.previous())
+            return new variable(token, from, to)
         }
-        throw new LoxError(this.previous().line, 'Syntax', `Expression Expected, Got '${this.currentLexeme()}'`)
+        throw new LoxError(token.line, 'Syntax', `Expression Expected, Got '${this.currentLexeme()}'`)
     }
 
     private currentLexeme(): string {
