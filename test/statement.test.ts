@@ -1,5 +1,5 @@
 import { Binary, Literal, variable } from '../src/expression'
-import { PrintStmt, VarStmt, ExpressionStmt, BlockStmt, WhileStmt, IfStmt } from '../src/statement'
+import { PrintStmt, VarStmt, ExpressionStmt, BlockStmt, WhileStmt, IfStmt, FunctionStmt, Stmt } from '../src/statement'
 import Token from '../src/tokenizer/Token'
 import TokenType from '../src/tokenizer/TokenType'
 
@@ -58,8 +58,26 @@ describe('Test Statement', () => {
             new ExpressionStmt(new Binary(new Literal(1), new Token(TokenType.STAR, '*', null, 1), new Literal(2))),
         ])
 
-        expect(blockstmt1.statements.length).toEqual(0)
-        expect(blockStmt2.statements.length).toEqual(2)
+        expect(blockstmt1.body.length).toEqual(0)
+        expect(blockStmt2.body.length).toEqual(2)
+    })
+
+    it('Test Function Declaration Statement', () => {
+        const funcDeclarationStmt = new FunctionStmt(
+            new Token(TokenType.IDENTIFIER, 'NuName', 'NuName', 1),
+            [
+                new Token(TokenType.IDENTIFIER, 'param1', 'param1', 1),
+                new Token(TokenType.IDENTIFIER, 'param2', 'param2', 1),
+            ],
+            [new PrintStmt(new Binary(new Literal(1), new Token(TokenType.PLUS, '+', null, 1), new Literal(2)))]
+        )
+
+        expect(Object.keys(funcDeclarationStmt)).toEqual(['name', 'parameters', 'body'])
+        expect(funcDeclarationStmt['name']).toBeInstanceOf(Token)
+        expect(funcDeclarationStmt['parameters']).toBeInstanceOf(Array)
+        expect(funcDeclarationStmt['parameters'][0]).toBeInstanceOf(Token)
+        expect(funcDeclarationStmt['body']).toBeInstanceOf(Array)
+        expect(funcDeclarationStmt['body'][0]).toBeInstanceOf(PrintStmt)
     })
 
     it('Test If Statement', () => {

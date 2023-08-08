@@ -1,4 +1,4 @@
-import { Binary, Unary, Grouping, Literal, Expr, Assignment, Ternary } from '../src/expression'
+import { Binary, Unary, Grouping, Literal, Expr, Assignment, Ternary, CallExpr } from '../src/expression'
 import Token from '../src/tokenizer/Token'
 import TokenType from '../src/tokenizer/TokenType'
 
@@ -60,5 +60,19 @@ describe('All Expression Class Test', () => {
             first: { value: 1 },
             second: { value: 2 },
         })
+    })
+
+    it('Test Call Expression', () => {
+        const callExpr = new CallExpr(
+            new Literal('Func Name'),
+            [new Literal(1)],
+            new Token(TokenType.RIGHT_PAREN, ')', null, 1)
+        )
+
+        expect(Object.keys(callExpr)).toEqual(['callee', 'args', 'endParen'])
+        expect(callExpr['callee']).toBeInstanceOf(Literal)
+        expect(callExpr['args']).toBeInstanceOf(Array)
+        expect(callExpr['args'][0]).toBeInstanceOf(Literal)
+        expect(callExpr['endParen']).toBeInstanceOf(Token)
     })
 })

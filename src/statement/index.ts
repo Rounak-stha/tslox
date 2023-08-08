@@ -114,9 +114,9 @@ export class VarStmt implements Stmt {
 }
 
 export class BlockStmt implements Stmt {
-    statements: Stmt[]
+    body: Stmt[]
     constructor(statements: Stmt[]) {
-        this.statements = statements
+        this.body = statements
     }
 
     accept<T>(visitor: StmtVisitor<T>): T {
