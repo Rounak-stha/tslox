@@ -396,7 +396,7 @@ export default class Parser {
         if (this.match(TokenType.IDENTIFIER)) {
             return new variable(token, from, to)
         }
-        throw new LoxError(token.line, 'Syntax', `Expression Expected, Got '${this.currentLexeme()}'`)
+        throw new LoxError(this.previous().line, 'Syntax', `Expression Expected, Got '${this.currentLexeme()}'`)
     }
 
     private currentLexeme(): string {
