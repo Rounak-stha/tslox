@@ -26,6 +26,7 @@ import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import { searchKeymap, highlightSelectionMatches } from '@codemirror/search'
 import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete'
 import { lintKeymap } from '@codemirror/lint'
+import { lox } from '../../lang/lang'
 
 type HookReturnType = [React.RefObject<HTMLDivElement>, EditorView | undefined]
 
@@ -64,12 +65,13 @@ export default function useCodeMirror(): HookReturnType {
 
     useEffect(() => {
         if (!refContainer.current) return
-        let editor = new EditorView({
+        const editor = new EditorView({
             state: EditorState.create({
                 doc: '',
                 extensions: [
                     basicSetup,
                     placeholder(''),
+                    lox(),
                     EditorView.updateListener.of((update) => {
                         if (update.changes) {
                             // onChange && onChange(update.state.doc.toString());
