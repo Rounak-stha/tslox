@@ -9,11 +9,8 @@ function parse(source: string): Stmt[] {
     tokenizer.scanTokens()
     const tokens = tokenizer.Tokens
     const parser = new Parser(tokens)
-    const statements = parser.parse()
-    if (!statements) {
-        throw parser.errors
-    }
-    return statements
+    const SyntaxTree = parser.parse()
+    return SyntaxTree.body
 }
 
 describe('Test Parser', () => {

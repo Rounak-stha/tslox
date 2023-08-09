@@ -1,0 +1,36 @@
+@top Program { expression* }
+
+@skip { space | LineComment }
+
+expression {
+  Identifier |
+  String |
+  Boolean |
+  Application { "(" expression* ")" } |
+  VariableDeclaration
+}
+
+VariableDeclaration {
+  (kw<"let"> | kw<"var"> | kw<"const">)
+}
+
+kw<term> { @specialize[@name={term}]<Identifier, term> }
+
+
+
+@tokens {
+  Identifier { $[a-zA-Z_\-0-9]+ }
+
+  String { '"' (!["\\] | "\\" _)* '"' }
+
+  Boolean { "#t" | "#f" }
+
+  var { ("var") }
+  LineComment { "//" ![\n]* }
+
+  space { $[ \t\n\r]+ }
+
+  "(" ")"
+}
+
+@detectDelim

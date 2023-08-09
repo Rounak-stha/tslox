@@ -13,9 +13,17 @@ import {
     VarStmt,
     WhileStmt,
 } from '../statement'
+import { LoxBulkError } from '../error/LoxBulkError'
 
 // Create a helper function to throw synyax error of this signature
 // SyntaxError(Token, message): void
+
+export type SyntaxTree = {
+    type: 'Lox Program'
+    from: number
+    to: number
+    body: Stmt[]
+}
 
 export default class Parser {
     private readonly tokens: Token[]
@@ -27,7 +35,11 @@ export default class Parser {
         this.tokens = tokens
     }
 
-    parse(): Stmt[] | null {
+    /**
+     * Throws LoxBulkError and lets the caller to handle the error
+     * @returns { SyntaxTree }
+     */
+    parse(): SyntaxTree {
         const statements: Stmt[] = []
         while (!this.isAtEnd()) {
             try {
@@ -35,14 +47,18 @@ export default class Parser {
             } catch (e) {
                 if (e instanceof LoxError) {
                     this.hadError = true
-                    console.log(e.message)
                     this.errors.push(e)
                     this.synchronize()
                 } else throw e
             }
         }
-        if (this.hadError) return null
-        return statements
+        if (this.hadError) throw new LoxBulkError('Syntax', this.errors)
+        return {
+            type: 'Lox Program',
+            from: this.tokens[0].from,
+            to: this.tokens[this.tokens.length - 1].to,
+            body: statements,
+        }
     }
 
     private expression(): Expr {

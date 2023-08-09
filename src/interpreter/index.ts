@@ -64,7 +64,7 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
     visitReturnStmt(stmt: ReturnStmt): void {
         let value = null
         if (stmt.value) value = this.evaluate(stmt.value)
-        // caught by visitCallExpr
+        // caught by Function.call() | clears the stack frame by frame to reach the function call
         // Might need a better name for this placeholder error return type
         throw new Return(value)
     }

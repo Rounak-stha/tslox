@@ -1,12 +1,13 @@
 import fs from 'fs'
 import path from 'path'
 import { Expr } from './expression'
-import Parser from './parser'
+import Parser, { SyntaxTree } from './parser'
 import Tokenizer from './tokenizer/tokenizer'
 import AstToString from './AstToString'
 import { Interpreter } from './interpreter'
 import { Stmt } from './statement'
 import LoxError from './error/LoxError'
+import { LoxBulkError } from './error/LoxBulkError'
 
 // const astPrinter = new AstToString()
 // console.log(astPrinter.print(result))
@@ -14,18 +15,19 @@ import LoxError from './error/LoxError'
 const interpreter = new Interpreter()
 
 function run(source: string) {
-    let statements: Stmt[] | null = []
+    let tree: SyntaxTree
     try {
         const tokenizer = new Tokenizer(source)
         tokenizer.scanTokens()
         const parser = new Parser(tokenizer.Tokens)
-        statements = parser.parse()
-        if (statements === null) return
+        tree = parser.parse()
         // console.log(JSON.stringify(statements, null, 2))
-        interpreter.interpret(statements as Stmt[])
+        interpreter.interpret(tree.body)
     } catch (e) {
         if (e instanceof LoxError) {
             console.log(e.message)
+        } else if (e instanceof LoxBulkError) {
+            e.errors.forEach((e) => console.log(e.message))
         } else throw e
     }
 }
@@ -62,12 +64,15 @@ async function runPrompt() {
     }
 })()
 
-export function createAst(source: string) {
+export function createAst(source: string): SyntaxTree {
     const tokenizer = new Tokenizer(source)
     tokenizer.scanTokens()
     const parser = new Parser(tokenizer.Tokens)
-    const result = parser.parse()
-    if (result) {
-        return JSON.stringify(result, null, 4)
-    } else console.log('An Error Occoured')
+    try {
+        return parser.parse()
+    } catch (err) {
+        if (err instanceof LoxBulkError) {
+            throw err.errors.map((e) => e.message)
+        } else throw err
+    }
 }
