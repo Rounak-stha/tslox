@@ -2,7 +2,10 @@ import { useState } from 'react'
 import Editor from './components/Editor'
 import { createAst } from '../../src/'
 import { SyntaxTree } from '../../src/parser'
-import { Tree } from './components/Tree'
+import { Tree } from './visualizations/Tree'
+import OutputContainer from './components/OutputContainer'
+import { Provider } from 'react-redux'
+import { store } from './store'
 
 function App() {
     const [ast, setAst] = useState<SyntaxTree>()
@@ -19,7 +22,6 @@ function App() {
         }
     }
 
-    console.log(ast && <Tree tree={ast} />)
     return (
         <main className="flex flex-col h-full">
             <button
@@ -29,10 +31,10 @@ function App() {
                 Run
             </button>
             <div className="flex flex-1">
-                <Editor className="flex-1" />
-                <div className="flex-1">
-                    <div className="mono text-xs">{ast ? <Tree tree={ast} /> : null}</div>
-                </div>
+                <Provider store={store}>
+                    <Editor />
+                    <OutputContainer />
+                </Provider>
             </div>
         </main>
     )

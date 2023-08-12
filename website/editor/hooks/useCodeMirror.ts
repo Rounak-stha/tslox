@@ -28,8 +28,6 @@ import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } 
 import { lintKeymap } from '@codemirror/lint'
 import { lox } from '../../lang/lang'
 
-type HookReturnType = [React.RefObject<HTMLDivElement>, EditorView | undefined]
-
 const basicSetup: Extension = (() => [
     lineNumbers(),
     highlightActiveLineGutter(),
@@ -59,7 +57,9 @@ const basicSetup: Extension = (() => [
     ]),
 ])()
 
-export default function useCodeMirror(): HookReturnType {
+export default function useCodeMirror(
+    onChange: (doc: string) => void
+): [React.RefObject<HTMLDivElement>, EditorView | undefined] {
     const [Editor, setEditor] = useState<EditorView>()
     const refContainer = useRef<HTMLDivElement>(null)
 
@@ -74,7 +74,7 @@ export default function useCodeMirror(): HookReturnType {
                     lox(),
                     EditorView.updateListener.of((update) => {
                         if (update.changes) {
-                            // onChange && onChange(update.state.doc.toString());
+                            onChange(update.state.doc.toString())
                         }
                     }),
                 ],

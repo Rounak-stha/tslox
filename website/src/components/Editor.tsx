@@ -1,7 +1,10 @@
 import useCodeMirror from '../../editor/hooks/useCodeMirror'
+import { updatesource } from '../features/sourceSlice'
+import { useAppDispatch } from '../hooks/redux'
 
-export default function Editor({ className }: { className: string }) {
-    const [refContainer, Editor] = useCodeMirror()
-    // console.log(refContainer, Editor)
-    return <div className={`p-1 ${className ? className : ''}`} ref={refContainer}></div>
+export default function Editor() {
+    const dispatch = useAppDispatch()
+    const [refContainer, _] = useCodeMirror((doc) => dispatch(updatesource(doc)))
+
+    return <div className="p- flex-1" ref={refContainer}></div>
 }

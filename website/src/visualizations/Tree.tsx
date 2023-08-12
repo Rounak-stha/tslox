@@ -3,8 +3,11 @@ import { SyntaxTree } from '../../../src/parser'
 import { Node } from '../../../src/types'
 
 export function Tree({ tree }: { tree: SyntaxTree }) {
-    console.log(JSON.stringify(tree, null, 4))
-    return <Element node={tree} />
+    return (
+        <Block name={tree.type} type="object">
+            <Element node={tree} />
+        </Block>
+    )
 }
 
 function Element({ node }: { node: Node | Node[] }) {
@@ -41,22 +44,28 @@ function Block({ name, children, type }: { name: string; children: React.ReactNo
     const startChar = type === 'object' ? '{' : '['
     const endChar = type === 'object' ? '}' : ']'
     return (
-        <div>
-            <p>
+        <li className="py-1">
+            <span className="text-blue-500 hover:underline cursor-pointer">
                 {name} {startChar}
-            </p>
-            <div className="pl-6">{children}</div>
+            </span>
+            <ul className="pl-6 py-0.5">{children}</ul>
             {endChar}
-        </div>
+        </li>
     )
 }
 
 function VPrimary({ name, value }: { name: string; value: LiteralValue }) {
     // Boolean values must be converted to string; true.toString() = 'true'
-    const parsedValue = value ? (typeof value === 'string' ? `"${value}"` : value.toString()) : 'null'
+    const parsedValue = !isNullOrUndefined(value)
+        ? typeof value === 'string'
+            ? `"${value}"`
+            : value.toString()
+        : 'null'
     return (
-        <div>
-            {name} - {parsedValue}
-        </div>
+        <li className="py-0.5">
+            <span className="text-orange-500">{name}</span> - {parsedValue}
+        </li>
     )
 }
+
+const isNullOrUndefined = (val: unknown) => val === 'undefined' || val === null
