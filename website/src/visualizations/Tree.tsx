@@ -44,7 +44,7 @@ function Block({ name, children, type }: { name: string; children: React.ReactNo
     const startChar = type === 'object' ? '{' : '['
     const endChar = type === 'object' ? '}' : ']'
     return (
-        <li className="py-1">
+        <li className="py-1 list-none">
             <span className="text-blue-500 hover:underline cursor-pointer">
                 {name} {startChar}
             </span>
@@ -62,7 +62,7 @@ function VPrimary({ name, value }: { name: string; value: LiteralValue }) {
             : value.toString()
         : 'null'
     return (
-        <li className="py-0.5">
+        <li className="py-0.5 list-none">
             <span className="text-orange-500">{name}</span> - {parsedValue}
         </li>
     )

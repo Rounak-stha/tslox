@@ -25,6 +25,8 @@ export type SyntaxTree = {
     body: Stmt[]
 }
 
+export type ParserError = LoxBulkError
+
 export default class Parser {
     private readonly tokens: Token[]
     private currTokenIndex = 0

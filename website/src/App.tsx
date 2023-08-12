@@ -8,34 +8,16 @@ import { Provider } from 'react-redux'
 import { store } from './store'
 
 function App() {
-    const [ast, setAst] = useState<SyntaxTree>()
-
-    function getAst(): void {
-        const source = Array.from(document.querySelectorAll('.cm-line'))
-            .map((e) => e.textContent)
-            .join('\n')
-
-        try {
-            setAst(createAst(source))
-        } catch (err) {
-            console.log('An Error Occoured')
-        }
-    }
-
     return (
-        <main className="flex flex-col h-full">
-            <button
-                onClick={getAst}
-                className="px-4 pt-1 pb-1.5 font-semibold bg-blue-500 text-white rounded-sm active:scale-95"
-            >
-                Run
-            </button>
-            <div className="flex flex-1">
+        <main className="flex flex-col h-screen max-h-screen">
+            <div className="h-6">Header</div>
+            <div className="flex flex-1 min-h-0">
                 <Provider store={store}>
                     <Editor />
                     <OutputContainer />
                 </Provider>
             </div>
+            <div className="h-6">Footer</div>
         </main>
     )
 }

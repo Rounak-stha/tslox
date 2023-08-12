@@ -6,5 +6,5 @@ export default function Editor() {
     const dispatch = useAppDispatch()
     const [refContainer, _] = useCodeMirror((doc) => dispatch(updatesource(doc)))
 
-    return <div className="p- flex-1" ref={refContainer}></div>
+    return <div className="flex-1 overflow-scroll thin-scrollbar" ref={refContainer}></div>
 }

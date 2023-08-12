@@ -68,11 +68,5 @@ export function createAst(source: string): SyntaxTree {
     const tokenizer = new Tokenizer(source)
     tokenizer.scanTokens()
     const parser = new Parser(tokenizer.Tokens)
-    try {
-        return parser.parse()
-    } catch (err) {
-        if (err instanceof LoxBulkError) {
-            throw err.errors.map((e) => e.message)
-        } else throw err
-    }
+    return parser.parse()
 }
