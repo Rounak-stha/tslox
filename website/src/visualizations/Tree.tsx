@@ -1,26 +1,27 @@
 import { LiteralValue } from '../../../src/expression'
 import { SyntaxTree } from '../../../src/parser'
 import { Node } from '../../../src/types'
+import { publish } from '../utils/pubSub'
 
 export function Tree({ tree }: { tree: SyntaxTree }) {
     return (
-        <Block name={tree.type} type="object">
+        <Block name={tree.type} type="object" from={tree.from} to={tree.to}>
             <Element node={tree} />
         </Block>
     )
 }
 
 function Element({ node }: { node: Node | Node[] }) {
-    if (Array.isArray(node)) return node.map((n) => <Element node={n} />)
+    if (Array.isArray(node)) return node.map((n) => <Element key={n.type + n.from.toString() + n.to.toString()} node={n} />)
     const elems = []
     for (const key in node) {
         const a: unknown = node[key as keyof Node]
         if (Array.isArray(a)) {
             elems.push(
                 <Block name={key} type="array">
-                    {a.map((n) => (
-                        <Block name={(n as Node).type} type="object">
-                            <Element node={n as Node} />
+                    {(a as Node[]).map((n) => (
+                        <Block key={key + n.type + n.from.toString() + n.to.toString()} name={n.type} type="object" from={n.from} to={n.to}>
+                            <Element node={n} />
                         </Block>
                     ))}
                 </Block>
@@ -29,7 +30,7 @@ function Element({ node }: { node: Node | Node[] }) {
         }
         if (a && typeof a === 'object') {
             elems.push(
-                <Block name={key} type="object">
+                <Block name={key} type="object" from={(a as Node).from} to={(a as Node).to}>
                     <Element node={a as Node} />
                 </Block>
             )
@@ -40,11 +41,16 @@ function Element({ node }: { node: Node | Node[] }) {
     return elems
 }
 
-function Block({ name, children, type }: { name: string; children: React.ReactNode; type: 'object' | 'array' }) {
+function Block({ name, children, type, from, to }: { name: string; children: React.ReactNode; type: 'object' | 'array'; from?: number; to?: number }) {
     const startChar = type === 'object' ? '{' : '['
     const endChar = type === 'object' ? '}' : ']'
     return (
-        <li className="py-1 list-none">
+        <li
+            className="py-1 list-none"
+            onMouseEnter={() => {
+                !isNullOrUndefined(from) && !isNullOrUndefined(to) && publish('HIGHLIGHT', { from: from as number, to: to as number })
+            }}
+        >
             <span className="text-blue-500 hover:underline cursor-pointer">
                 {name} {startChar}
             </span>
@@ -56,11 +62,7 @@ function Block({ name, children, type }: { name: string; children: React.ReactNo
 
 function VPrimary({ name, value }: { name: string; value: LiteralValue }) {
     // Boolean values must be converted to string; true.toString() = 'true'
-    const parsedValue = !isNullOrUndefined(value)
-        ? typeof value === 'string'
-            ? `"${value}"`
-            : value.toString()
-        : 'null'
+    const parsedValue = !isNullOrUndefined(value) ? (typeof value === 'string' ? `"${value}"` : (value as unknown as object).toString()) : 'null'
     return (
         <li className="py-0.5 list-none">
             <span className="text-orange-500">{name}</span> - {parsedValue}

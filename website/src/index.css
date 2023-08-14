@@ -2,9 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Codemirror Start */
 .cm-editor {
     height: 100%;
 }
+
+.cm-scroller .cm-selectionLayer .cm-selectionBackground {
+    @apply bg-blue-300;
+}
+
+/* Codemirror End */
 
 .thin-scrollbar {
     scrollbar-width: thin;

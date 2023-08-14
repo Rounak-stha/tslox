@@ -1,8 +1,4 @@
-import { useState } from 'react'
 import Editor from './components/Editor'
-import { createAst } from '../../src/'
-import { SyntaxTree } from '../../src/parser'
-import { Tree } from './visualizations/Tree'
 import OutputContainer from './components/OutputContainer'
 import { Provider } from 'react-redux'
 import { store } from './store'
