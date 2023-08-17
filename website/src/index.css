@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Tree View Start */
+.node-hover {
+    @apply bg-blue-50;
+
+}
 /* Codemirror Start */
 .cm-editor {
     height: 100%;
