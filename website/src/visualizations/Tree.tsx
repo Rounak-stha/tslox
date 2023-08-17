@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { LiteralValue } from '../../../src/expression'
 import { SyntaxTree } from '../../../src/parser'
 import { Node } from '../../../src/types'
@@ -5,7 +6,7 @@ import { publish } from '../utils/pubSub'
 
 export function Tree({ tree }: { tree: SyntaxTree }) {
     return (
-        <Block name={tree.type} type="object" from={tree.from} to={tree.to}>
+        <Block name={tree.type} node={tree}>
             <Element node={tree} />
         </Block>
     )
@@ -18,9 +19,9 @@ function Element({ node }: { node: Node | Node[] }) {
         const a: unknown = node[key as keyof Node]
         if (Array.isArray(a)) {
             elems.push(
-                <Block name={key} type="array">
+                <Block name={key} node={a}>
                     {(a as Node[]).map((n) => (
-                        <Block key={key + n.type + n.from.toString() + n.to.toString()} name={n.type} type="object" from={n.from} to={n.to}>
+                        <Block key={key + n.type + n.from.toString() + n.to.toString()} name={n.type} node={n}>
                             <Element node={n} />
                         </Block>
                     ))}
@@ -30,7 +31,7 @@ function Element({ node }: { node: Node | Node[] }) {
         }
         if (a && typeof a === 'object') {
             elems.push(
-                <Block name={key} type="object" from={(a as Node).from} to={(a as Node).to}>
+                <Block name={key} node={a as Node}>
                     <Element node={a as Node} />
                 </Block>
             )
@@ -41,21 +42,51 @@ function Element({ node }: { node: Node | Node[] }) {
     return elems
 }
 
-function Block({ name, children, type, from, to }: { name: string; children: React.ReactNode; type: 'object' | 'array'; from?: number; to?: number }) {
-    const startChar = type === 'object' ? '{' : '['
-    const endChar = type === 'object' ? '}' : ']'
+function Block({ name, node, children }: { name: string; children: React.ReactNode; node: Node | Node[] }) {
+    const [showChildren, setShowChildren] = useState(true)
+    const isArray = Array.isArray(node)
+    let startChar: string
+    let endChar: string
+    let from: number
+    let to: number
+
+    if (isArray) {
+        startChar = '['
+        endChar = ']'
+        if (node.length) {
+            from = node[0].from
+            to = node[node.length - 1].to
+        }
+    } else {
+        startChar = '{'
+        endChar = '}'
+        from = node.from
+        to = node.to
+    }
+
+    const propStr = isArray ? node.length.toString() + ' element' + (node.length > 1 ? 's' : '') : Object.keys(node).join(', ')
+
+    const handleMouseOver = (e: React.MouseEvent<HTMLLIElement>) => {
+        e.stopPropagation()
+        ;(e.target as HTMLUListElement).classList.add('node-hover')
+        !isNullOrUndefined(from) && !isNullOrUndefined(to) && publish('HIGHLIGHT', { from, to })
+    }
+
+    const handeMouseOut = (e: React.MouseEvent<HTMLLIElement>) => {
+        e.stopPropagation()
+        ;(e.target as HTMLUListElement).classList.remove('node-hover')
+        // Remove the highlight
+    }
     return (
-        <li
-            className="py-1 list-none"
-            onMouseEnter={() => {
-                !isNullOrUndefined(from) && !isNullOrUndefined(to) && publish('HIGHLIGHT', { from: from as number, to: to as number })
-            }}
-        >
-            <span className="text-blue-500 hover:underline cursor-pointer">
-                {name} {startChar}
+        <li className="py-1 list-none" onMouseOver={handleMouseOver} onMouseOut={handeMouseOut}>
+            <span onClick={() => setShowChildren((prev) => !prev)}>
+                <span className="pr-1.5">{showChildren ? '-' : '+'}</span>
+                <span className="text-blue-500 hover:underline cursor-pointer">{name}</span>
+                <span className="text-red-600 px-1.5">{startChar} </span>
+                {!showChildren && <span className="text-gray-300">{propStr}</span>}
             </span>
-            <ul className="pl-6 py-0.5">{children}</ul>
-            {endChar}
+            {showChildren && <ul className="pl-6 py-0.5">{children}</ul>}
+            <span className="text-red-600 px-1.5">{endChar}</span>
         </li>
     )
 }
