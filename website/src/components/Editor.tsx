@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import useCodeMirror from '../../editor/hooks/useCodeMirror'
+import useCodeMirror from '../hooks/useCodeMirror'
 import { updatesource } from '../features/sourceSlice'
 import { useAppDispatch } from '../hooks/redux'
 import { EditorSelection } from '@codemirror/state'
