@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { createAst } from '../../../src'
 import { useAppSelector } from '../hooks/redux'
-import { Tree } from '../visualizations'
+import { Tree } from './visualizations'
 import { SyntaxTree, ParserError } from '../../../src/parser'
 import { LoxBulkError } from '../../../src/error/LoxBulkError'
 import ErrorContainer from './ErrorContainer'
@@ -22,7 +22,7 @@ export default function OutputContainer() {
     }, [source])
 
     return (
-        <div className="flex-1 flex flex-col overflow-auto thin-scrollbar bg-gray-100 px-2 mono text-sm">
+        <div className="flex-1 flex flex-col overflow-auto thin-scrollbar px-2 mono text-sm">
             {data.ast && <Tree tree={data.ast} />}
             {data.error && <ErrorContainer error={data.error} />}
         </div>

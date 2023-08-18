@@ -67,7 +67,7 @@ export default function useCodeMirror(
         if (!refContainer.current) return
         const editor = new EditorView({
             state: EditorState.create({
-                doc: 'fun sum(a, b) { \n  return a + b; \n}',
+                doc: 'if (true) { \n fun sum(a, b) { \n  return a + b; \n } \n}',
                 extensions: [
                     basicSetup,
                     placeholder(''),

@@ -3,3 +3,6 @@ export function getSourceCode(): string {
         .map((e) => e.textContent)
         .join('\n')
 }
+
+export const isNullOrUndefined = (val: unknown) => val === 'undefined' || val === null
+
