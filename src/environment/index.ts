@@ -1,4 +1,4 @@
-import LoxError, { RuntimeError } from '../error/LoxError'
+import { RuntimeError } from '../error/LoxError'
 import Token from '../tokenizer/Token'
 
 export class Environment {

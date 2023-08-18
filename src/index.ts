@@ -1,11 +1,8 @@
 import fs from 'fs'
 import path from 'path'
-import { Expr } from './expression'
 import Parser, { SyntaxTree } from './parser'
 import Tokenizer from './tokenizer/tokenizer'
-import AstToString from './AstToString'
 import { Interpreter } from './interpreter'
-import { Stmt } from './statement'
 import LoxError from './error/LoxError'
 import { LoxBulkError } from './error/LoxBulkError'
 
@@ -41,7 +38,7 @@ function runFile(filePath: string) {
 async function runPrompt() {
     const readline = require('readline').createInterface({
         input: process.stdin,
-        output: process.stdout,
+        output: process.stdout
     })
     async function prompt(): Promise<string> {
         return new Promise((resolve) => {
