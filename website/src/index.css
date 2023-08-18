@@ -13,6 +13,7 @@ input {
 
 .DialogOverlay {
     position: fixed;
+    backdrop-filter: blur(2px);
     inset: 0;
     animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -27,20 +28,17 @@ input {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 90vw;
-    max-width: 450px;
-    max-height: 85vh;
+    min-width: 50vw;
+    max-width: 70vw;
+    max-height: 70vh;
     padding: 25px;
     animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-.DialogContent:focus {
-    outline: none;
 }
 
 .DialogTitle {
     margin: 0;
-    font-weight: 500;
-    font-size: 17px;
+    font-weight: 700;
+    @apply text-xl;
 }
 
 .DialogDescription {
@@ -61,22 +59,6 @@ input {
     height: 35px;
 }
 
-.Button.violet {
-    background-color: white;
-    box-shadow: 0 2px 10px black;
-}
-
-.Button.violet:hover {
-}
-
-.Button.violet:focus {
-    box-shadow: 0 0 0 2px black;
-}
-
-.Button.green:focus {
-    box-shadow: 0 0 0 2px green;
-}
-
 .IconButton {
     font-family: inherit;
     border-radius: 100%;
@@ -85,16 +67,15 @@ input {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: violet;
     position: absolute;
     top: 10px;
     right: 10px;
+    cursor: pointer;
+    @apply text-red-700;
 }
+
 .IconButton:hover {
-    background-color: violet;
-}
-.IconButton:focus {
-    box-shadow: 0 0 0 2px violet;
+    @apply bg-red-300;
 }
 
 @keyframes overlayShow {
