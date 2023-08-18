@@ -1,3 +1,5 @@
+// eslint-disable-next-line
+// @ts-ignore
 import { parser } from './parser.js'
 import { foldNodeProp, foldInside, indentNodeProp } from '@codemirror/language'
 import { styleTags, tags as t } from '@lezer/highlight'
@@ -12,15 +14,15 @@ const parserWithMetadata = parser.configure({
             Boolean: t.bool,
             String: t.string,
             LineComment: t.lineComment,
-            '( )': t.paren,
+            '( )': t.paren
         }),
         indentNodeProp.add({
-            Application: (context) => context.column(context.node.from) + context.unit,
+            Application: (context) => context.column(context.node.from) + context.unit
         }),
         foldNodeProp.add({
-            Application: foldInside,
-        }),
-    ],
+            Application: foldInside
+        })
+    ]
 })
 
 export function lox() {
@@ -30,8 +32,8 @@ export function lox() {
 export const loxLanguage = LRLanguage.define({
     parser: parserWithMetadata,
     languageData: {
-        commentTokens: { line: ';' },
-    },
+        commentTokens: { line: ';' }
+    }
 })
 
 export const loxCompletion = loxLanguage.data.of({
@@ -40,6 +42,6 @@ export const loxCompletion = loxLanguage.data.of({
         { label: 'if', type: 'keyword' },
         { label: 'for', type: 'function' },
         { label: 'while', type: 'function' },
-        { label: 'fun', type: 'function' },
-    ]),
+        { label: 'fun', type: 'function' }
+    ])
 })

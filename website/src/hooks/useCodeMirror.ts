@@ -11,17 +11,10 @@ import {
     lineNumbers,
     highlightActiveLineGutter,
     EditorView,
-    placeholder,
+    placeholder
 } from '@codemirror/view'
 import { Extension, EditorState } from '@codemirror/state'
-import {
-    defaultHighlightStyle,
-    syntaxHighlighting,
-    indentOnInput,
-    bracketMatching,
-    foldGutter,
-    foldKeymap,
-} from '@codemirror/language'
+import { defaultHighlightStyle, syntaxHighlighting, indentOnInput, bracketMatching, foldGutter, foldKeymap } from '@codemirror/language'
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import { searchKeymap, highlightSelectionMatches } from '@codemirror/search'
 import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete'
@@ -46,20 +39,10 @@ const basicSetup: Extension = (() => [
     crosshairCursor(),
     highlightActiveLine(),
     highlightSelectionMatches(),
-    keymap.of([
-        ...closeBracketsKeymap,
-        ...defaultKeymap,
-        ...searchKeymap,
-        ...historyKeymap,
-        ...foldKeymap,
-        ...completionKeymap,
-        ...lintKeymap,
-    ]),
+    keymap.of([...closeBracketsKeymap, ...defaultKeymap, ...searchKeymap, ...historyKeymap, ...foldKeymap, ...completionKeymap, ...lintKeymap])
 ])()
 
-export default function useCodeMirror(
-    onChange: (doc: string) => void
-): [React.RefObject<HTMLDivElement>, EditorView | undefined] {
+export default function useCodeMirror(onChange: (doc: string) => void): [React.RefObject<HTMLDivElement>, EditorView | undefined] {
     const [Editor, setEditor] = useState<EditorView>()
     const refContainer = useRef<HTMLDivElement>(null)
 
@@ -67,7 +50,7 @@ export default function useCodeMirror(
         if (!refContainer.current) return
         const editor = new EditorView({
             state: EditorState.create({
-                doc: 'if (true) { \n fun sum(a, b) { \n  return a + b; \n } \n}',
+                doc: 'if (true) { \n var num = 10; \n fun addNum(a) { \n  return a + num; \n } \n}',
                 extensions: [
                     basicSetup,
                     placeholder(''),
@@ -76,10 +59,10 @@ export default function useCodeMirror(
                         if (update.changes) {
                             onChange(update.state.doc.toString())
                         }
-                    }),
-                ],
+                    })
+                ]
             }),
-            parent: refContainer.current,
+            parent: refContainer.current
         })
 
         setEditor(editor)

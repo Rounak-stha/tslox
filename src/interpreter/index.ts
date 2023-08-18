@@ -2,31 +2,8 @@ import { Function } from '../Function'
 import { Environment } from '../environment'
 import LoxError, { RuntimeError } from '../error/LoxError'
 import { Return } from '../error/Return'
-import {
-    ExprVisitor,
-    Expr,
-    Binary,
-    Literal,
-    Unary,
-    Grouping,
-    Ternary,
-    variable,
-    Assignment,
-    Logical,
-    CallExpr,
-} from '../expression'
-import {
-    BlockStmt,
-    ExpressionStmt,
-    FunctionStmt,
-    IfStmt,
-    PrintStmt,
-    ReturnStmt,
-    Stmt,
-    StmtVisitor,
-    VarStmt,
-    WhileStmt,
-} from '../statement'
+import { ExprVisitor, Expr, Binary, Literal, Unary, Grouping, Ternary, variable, Assignment, Logical, CallExpr } from '../expression'
+import { BlockStmt, ExpressionStmt, FunctionStmt, IfStmt, PrintStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt, WhileStmt } from '../statement'
 import Token from '../tokenizer/Token'
 import TokenType from '../tokenizer/TokenType'
 import { Callable } from '../types'
@@ -45,7 +22,7 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
         const clock: Callable = {
             arity: 0,
             call: () => Date.now(),
-            toString: () => '<Native func clock()>',
+            toString: () => '<Native func clock()>'
         }
         this.globals.define('clock', clock)
     }
@@ -216,8 +193,7 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
             return this.environment.get(name)
         } catch (e) {
             console.log(e)
-            if (e === 'Undefined Variable')
-                throw new LoxError(expr.name.line, 'Runtime', `Undefined Variable '${expr.name.lexeme}'`)
+            if (e === 'Undefined Variable') throw new LoxError(expr.name.line, 'Runtime', `Undefined Variable '${expr.name.lexeme}'`)
             else throw e
         }
     }
@@ -233,12 +209,7 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
         if (!isCallable(callee)) throw new LoxError(expr.endParen.line, 'Syntax', 'Uncallable Expression.')
 
         // check arity
-        if (args.length != callee.arity)
-            throw new LoxError(
-                expr.endParen.line,
-                'Parse Error',
-                `Exprcted ${callee.arity} number of arguments, got ${args.length}.`
-            )
+        if (args.length != callee.arity) throw new LoxError(expr.endParen.line, 'Parse Error', `Exprcted ${callee.arity} number of arguments, got ${args.length}.`)
         const func = callee as Callable
         return func.call(this, args)
     }
@@ -280,7 +251,7 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
             case TokenType.PLUS:
                 if (typeof left === 'number' && typeof right === 'number') return (left as number) + (right as number)
                 if (typeof left === 'string' && typeof right === 'string') return (left as string) + (right as string)
-                RuntimeError(expr.operator, 'Operators must be a number or string')
+                return RuntimeError(expr.operator, 'Operators must be a number or string')
             case TokenType.STAR:
                 this.checkNumberOperands(expr.operator, left, right)
                 return (left as number) * (right as number)
