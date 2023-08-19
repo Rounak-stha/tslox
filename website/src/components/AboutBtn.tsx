@@ -5,7 +5,7 @@ export default function AboutBtn() {
     return (
         <Dialog.Root>
             <Dialog.Trigger asChild>
-                <button className="text-xs rounded-xl font-semibold bg-blue-600 text-white px-2 py-0.5">About</button>
+                <button className="text-xs rounded-xl font-semibold bg-blue-600 text-white px-2 py-0.5 cursor-pointer">About</button>
             </Dialog.Trigger>
             <Dialog.Portal>
                 <Dialog.Overlay className="DialogOverlay" />
