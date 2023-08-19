@@ -1,6 +1,6 @@
-import { Node } from "../../../../src/types"
-import Block from "./Block"
-import VPrimary from "./VPrimary"
+import { Node } from '../../../../tox/src/types'
+import Block from './Block'
+import VPrimary from './VPrimary'
 
 export default function Element({ node }: { node: Node | Node[] }) {
     if (Array.isArray(node)) return node.map((n) => <Element key={n.type + n.from.toString() + n.to.toString()} node={n} />)

@@ -1,5 +1,5 @@
-import type { LiteralValue } from "../../../../src/expression";
-import { isNullOrUndefined } from "../../utils/helpers";
+import type { LiteralValue } from '../../../../tox/src/expression'
+import { isNullOrUndefined } from '../../utils/helpers'
 
 export default function VPrimary({ name, value }: { name: string; value: LiteralValue }) {
     // Boolean values must be converted to string; true.toString() = 'true'

@@ -1,4 +1,4 @@
-import { LoxBulkError } from '../../../src/error/LoxBulkError'
+import { LoxBulkError } from '../../../tox/src/error/LoxBulkError'
 
 export default function ErrorContainer({ error }: { error: LoxBulkError }) {
     return (

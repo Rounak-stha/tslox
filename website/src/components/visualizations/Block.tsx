@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Node } from '../../../../src/types';
-import { isNullOrUndefined } from '../../utils/helpers';
-import { publish } from '../../utils/pubSub';
+import { Node } from '../../../../tox/src/types'
+import { isNullOrUndefined } from '../../utils/helpers'
+import { publish } from '../../utils/pubSub'
 
 export default function Block({ name, node, children }: { name: string; children: React.ReactNode; node: Node | Node[] }) {
     const [showChildren, setShowChildren] = useState(true)

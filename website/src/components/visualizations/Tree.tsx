@@ -1,4 +1,4 @@
-import { SyntaxTree } from '../../../../src/parser'
+import { SyntaxTree } from '../../../../tox/src/parser'
 import Block from './Block'
 import Element from './Element'
 
@@ -9,10 +9,3 @@ export function Tree({ tree }: { tree: SyntaxTree }) {
         </Block>
     )
 }
-
-
-
-
-
-
-
