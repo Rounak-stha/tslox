@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
-import { createAst } from '../../../src'
+import { createAst } from '../../../tox/src'
 import { useAppSelector } from '../hooks/redux'
 import { Tree } from './visualizations'
-import { SyntaxTree, ParserError } from '../../../src/parser'
-import { LoxBulkError } from '../../../src/error/LoxBulkError'
+import { SyntaxTree, ParserError } from '../../../tox/src/parser'
+import { LoxBulkError } from '../../../tox/src/error/LoxBulkError'
 import ErrorContainer from './ErrorContainer'
 
 export default function OutputContainer() {
