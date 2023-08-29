@@ -4,8 +4,8 @@ import { NodeHelper } from '../../utils/vUtil'
 
 const nodeHelper = new NodeHelper()
 
-export default function Block({ name, node, children }: { name: string; children: React.ReactNode; node: Node | Node[] }) {
-    const [showChildren, setShowChildren] = useState(true)
+export default function Block({ name, node, children, openstate = 'close' }: { name: string; children: React.ReactNode; node: Node | Node[]; openstate?: 'open' | 'close' }) {
+    const [showChildren, setShowChildren] = useState(openstate === 'open')
     const { startChar, endChar } = nodeHelper.getstartAndEndLiterals(node)
     const propStr = nodeHelper.getPropStr(node)
 
