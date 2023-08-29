@@ -42,6 +42,18 @@ const basicSetup: Extension = (() => [
     keymap.of([...closeBracketsKeymap, ...defaultKeymap, ...searchKeymap, ...historyKeymap, ...foldKeymap, ...completionKeymap, ...lintKeymap])
 ])()
 
+const initialCode = `var num = 1;
+
+fun addNum(a) { 
+  return a + num; 
+} 
+
+if (true) { 
+ var name = "Nu Name";
+ print name;
+ addNum(9);
+}`
+
 export default function useCodeMirror(onChange: (doc: string) => void): [React.RefObject<HTMLDivElement>, EditorView | undefined] {
     const [Editor, setEditor] = useState<EditorView>()
     const refContainer = useRef<HTMLDivElement>(null)
@@ -50,7 +62,7 @@ export default function useCodeMirror(onChange: (doc: string) => void): [React.R
         if (!refContainer.current) return
         const editor = new EditorView({
             state: EditorState.create({
-                doc: 'if (true) { \n var num = 10; \n fun addNum(a) { \n  return a + num; \n } \n}',
+                doc: initialCode,
                 extensions: [
                     basicSetup,
                     placeholder(''),

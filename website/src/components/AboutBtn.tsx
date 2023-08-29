@@ -13,7 +13,7 @@ export default function AboutBtn() {
                     <Dialog.Title className="DialogTitle">Tox Ast Explorer</Dialog.Title>
                     <Dialog.Description className="DialogDescription">
                         The app uses TypeScript Implementation of <ELink href="https://craftinginterpreters.com" text="Lox" /> hence Tox (TSLox was taken) and is inspired by{' '}
-                        <ELink href="https://www.astexplorer.net" text="AST Explorer" />. The motivation benhind this is an attempt to learn about language implementation,
+                        <ELink href="https://www.astexplorer.net" text="AST Explorer" />. The motivation behind this is an attempt to learn about language implementation,
                         interpretation and the use of Abstract Syntax Trees.
                     </Dialog.Description>
                     <Dialog.Close asChild>
