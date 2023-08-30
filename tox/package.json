@@ -1,0 +1,36 @@
+{
+    "name": "tox",
+    "version": "1.0.0",
+    "description": "Toy Language (TS implementation of Lox)",
+    "main": "src/index.ts",
+    "directories": {
+        "test": "test"
+    },
+    "scripts": {
+        "build": "tsc -p tsconfig.build.json",
+        "build:run": "npm run -w tox build && node build/src/index.js"
+    },
+    "devDependencies": {
+        "@types/jest": "^29.5.3",
+        "@types/node": "^20.4.5",
+        "jest": "^29.6.1",
+        "prettier": "^3.0.0",
+        "ts-jest": "^29.1.1",
+        "ts-node": "^10.9.1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Rounak-stha/tslox.git"
+    },
+    "keywords": [
+        "Tox",
+        "Lox",
+        "TsLox"
+    ],
+    "author": "Rouak-stha",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/Rounak-stha/tslox/issues"
+    },
+    "homepage": "https://github.com/Rounak-stha/tslox#readme"
+}

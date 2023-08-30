@@ -4,7 +4,7 @@ var TokenType;
 (function (TokenType) {
     // Single-character tokens.
     TokenType["LEFT_PAREN"] = "LEFT_PAREN";
-    TokenType["RIGHT_PAREN"] = "RIGHT_BRACE";
+    TokenType["RIGHT_PAREN"] = "RIGHT_PAREN";
     TokenType["LEFT_BRACE"] = "LEFT_BRACE";
     TokenType["RIGHT_BRACE"] = "RIGHT_BRACE";
     TokenType["COMMA"] = "COMMA";
@@ -12,8 +12,10 @@ var TokenType;
     TokenType["MINUS"] = "MINUS";
     TokenType["PLUS"] = "PLUS";
     TokenType["SEMICOLON"] = "SEMICOLON";
+    TokenType["COLON"] = "COLON";
     TokenType["SLASH"] = "SLASH";
     TokenType["STAR"] = "STAR";
+    TokenType["QUESTION_MARK"] = "QUESTION_MARK";
     // One or two character tokens.
     TokenType["BANG"] = "BANG";
     TokenType["BANG_EQUAL"] = "BANG_EQUAL";

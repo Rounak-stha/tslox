@@ -25,7 +25,7 @@ class Tokenizer {
             this.start = this.cursor;
             this.scanToken();
         }
-        this.tokens.push(new Token_1.default(TokenType_1.default.EOF, '', null, this.line));
+        this.tokens.push(new Token_1.default(TokenType_1.default.EOF, '', null, this.line, this.cursor, this.cursor));
     }
     /**
      * Scans the source from the current cursor position for valid lexeme and adds to token list if found
@@ -63,6 +63,12 @@ class Tokenizer {
                 break;
             case '*':
                 this.addToken(TokenType_1.default.STAR);
+                break;
+            case '?':
+                this.addToken(TokenType_1.default.QUESTION_MARK);
+                break;
+            case ':':
+                this.addToken(TokenType_1.default.COLON);
                 break;
             case '!':
                 // ! can be a standalone token but in our grammar it can also be followed by a =
@@ -149,7 +155,7 @@ class Tokenizer {
                 this.advance();
             }
         }
-        this.addToken(TokenType_1.default.NUMBER, this.source.substring(this.start, this.cursor));
+        this.addToken(TokenType_1.default.NUMBER, Number(this.source.substring(this.start, this.cursor)));
     }
     /**
      *
@@ -170,8 +176,8 @@ class Tokenizer {
         this.addToken(TokenType_1.default.STRING, str);
     }
     /**
-     * As the name suggest, it peeks the chatacter at the cursor index in the source code and returns the char if !EOF else returns the null string character
-     * @returns string
+     * As the name suggest, it peeks the chatacter at the cursor index in the source
+     * code and returns the char if !EOF else returns the null string character
      */
     peek() {
         if (!this.isAtEnd()) {
@@ -180,8 +186,8 @@ class Tokenizer {
         return '\0';
     }
     /**
-     * As the name suggest, it peeks the chatacter at the cursor index + 1 in the source code and returns the char if !EOF else returns the null string character
-     * @returns string
+     * As the name suggest, it peeks the chatacter at the cursor index + 1 in the
+     * source code and returns the char if !EOF else returns the null string character
      */
     peekNext() {
         if (!(this.cursor + 1 >= this.source.length)) {
@@ -191,12 +197,10 @@ class Tokenizer {
     }
     /**
      * Creates a new Token of the type an adds it to the token list
-     * @param type TokenType
-     * @param literal object | undefined
      */
     addToken(type, literal) {
         const lexeme = this.source.substring(this.start, this.cursor);
-        this.tokens.push(new Token_1.default(type, lexeme, literal ? literal : null, this.line));
+        this.tokens.push(new Token_1.default(type, lexeme, literal === 0 || literal ? literal : null, this.line, this.start, this.cursor));
     }
     /**
      * Only advance after checking if the cursor pointer is at end
@@ -207,9 +211,8 @@ class Tokenizer {
         return this.source.charAt(this.cursor++);
     }
     /**
-     * Check if the provided character matches the next char in the source and advances the cursor index pointer if it's a match
-     * @param char Character to check
-     * @returns Boolean: True if next character matches the provided char else false
+     * Check if the provided character matches the next char in the source and
+     * advances the cursor index pointer if it's a match
      */
     advanceIfNextEquals(char) {
         if (this.isAtEnd())
@@ -222,7 +225,6 @@ class Tokenizer {
     }
     /**
      * Checks if the cursor index pointer is at the end of the source code
-     * @returns boolean
      */
     isAtEnd() {
         return this.cursor >= this.source.length;
@@ -244,6 +246,6 @@ Tokenizer.keywords = {
     this: TokenType_1.default.THIS,
     true: TokenType_1.default.TRUE,
     var: TokenType_1.default.VAR,
-    while: TokenType_1.default.WHILE
+    while: TokenType_1.default.WHILE,
 };
 exports.default = Tokenizer;
