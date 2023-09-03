@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { createAst } from '../../../tox/src'
+import createAst from '../../../tox/src/web'
 import { useAppSelector } from '../hooks/redux'
 import { Tree } from './visualizations'
 import { SyntaxTree, ParserError } from '../../../tox/src/parser'

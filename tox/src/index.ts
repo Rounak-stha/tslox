@@ -60,14 +60,3 @@ async function runPrompt() {
         runPrompt()
     }
 })()
-
-export function createAst(source: string): SyntaxTree {
-    const tokenizer = new Tokenizer(source)
-    try {
-        tokenizer.scanTokens()
-    } catch (e) {
-        if (e instanceof LoxError) throw new LoxBulkError('Syntax', [e])
-    }
-    const parser = new Parser(tokenizer.Tokens)
-    return parser.parse()
-}
