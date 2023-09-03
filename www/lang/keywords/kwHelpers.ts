@@ -1,7 +1,6 @@
 import TokenType from '../../../tox/src/tokenizer/TokenType'
 import { keywordsList, keywordTypeList } from '../../../tox/src/tokenizer/setup'
 
-// console.log(keywordTypeList, keywordsList)
 type Replace<T extends string, U extends string, V extends string> = T extends `${infer Prefix}${U}${infer Suffix}` ? `${Prefix}${V}${Suffix}` : T
 
 export type keywordsName = 'defaultKWs' | 'oneKWs' | 'nepaliKWs' | 'customKWs'
@@ -39,7 +38,6 @@ function createSourceCode(name: keywordsName) {
 
         // eslint-disable-next-line
         keywordsList.forEach((k, i) => {
-            console.log(k, parsedKws[keywordTypeList[i]])
             // eslint-disable-next-line
             const regex = new RegExp('\\b' + k + '\\b', 'g')
             // eslint-disable-next-line

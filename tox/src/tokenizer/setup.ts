@@ -27,11 +27,10 @@ export default function setupKeywords() {
 
     const selectedKeywordGroupName = localStorage.getItem('selectedKeywordGroupName')
 
-    console.log(selectedKeywordGroupName)
     if (!selectedKeywordGroupName) return keywords
 
     const keywordsGroup = localStorage.getItem(selectedKeywordGroupName)
-    console.log(keywordsGroup)
+
     if (keywordsGroup) {
         const kws = JSON.parse(keywordsGroup)
         const customKeywords = {}
@@ -39,7 +38,7 @@ export default function setupKeywords() {
             // @ts-ignore
             customKeywords[value] = TokenType[key]
         }
-        console.log(customKeywords)
+
         return customKeywords as Record<string, TokenType>
     } else {
         alert("Looks like something unexpected happened.\nCan't select the keywords group.\nPlease reload site")
