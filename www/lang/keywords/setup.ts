@@ -1,5 +1,4 @@
 // eslint-disable-next-line
-import cKW from './one.json'
 import dKW from './default.json'
 import nepKW from './nepLang.json'
 
@@ -10,9 +9,6 @@ import nepKW from './nepLang.json'
 
 if (!localStorage.getItem('selectedKeywordGroupName')) {
     localStorage.setItem('selectedKeywordGroupName', 'defaultKWs')
-}
-if (!localStorage.getItem('oneKWs')) {
-    localStorage.setItem('oneKWs', JSON.stringify(cKW))
 }
 
 if (!localStorage.getItem('defaultKWs')) {

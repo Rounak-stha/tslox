@@ -3,7 +3,7 @@ import { keywordsList, keywordTypeList } from '../../../tox/src/tokenizer/setup'
 
 type Replace<T extends string, U extends string, V extends string> = T extends `${infer Prefix}${U}${infer Suffix}` ? `${Prefix}${V}${Suffix}` : T
 
-export type keywordsName = 'defaultKWs' | 'oneKWs' | 'nepaliKWs' | 'customKWs'
+export type keywordsName = 'defaultKWs' | 'nepaliKWs' | 'customKWs'
 export type keywordsDisplayName = Replace<keywordsName, 'KWs', ''>
 
 const defaultCode = `var num = 1;
@@ -52,18 +52,6 @@ function createSourceCode(name: keywordsName) {
 
 const codeByKW: Record<keywordsName, string> = {
     defaultKWs: defaultCode,
-
-    oneKWs: `let num = 1;
-
-func addNum(a) { 
-	return a + num; 
-} 
-
-if (treu) { 
-	let name = "Nu Name";
-	print name;
-	addNum(9);
-}`,
     customKWs: createSourceCode('customKWs'),
     nepaliKWs: createSourceCode('nepaliKWs')
 }

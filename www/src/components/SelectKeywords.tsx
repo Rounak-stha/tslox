@@ -15,11 +15,6 @@ const tabsAndValues: Record<keywordsDisplayName, TabValues> = {
         editable: false,
         KWName: 'defaultKWs'
     },
-    one: {
-        name: 'One',
-        editable: false,
-        KWName: 'oneKWs'
-    },
     nepali: {
         name: 'Nepali',
         editable: false,
