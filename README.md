@@ -3,8 +3,10 @@
 A TypeScript Implementation of [Lox programming language](https://craftinginterpreters.com/the-lox-language.html) by Robert Nystrom
 
 ## Demo
+https://tox-lang.vercel.app/
 
-Working on it.
+![image](https://github.com/Rounak-stha/tslox/assets/66557682/32f26c21-1a92-4b8d-98cb-003379afec7a)
+
 
 ## Contributing
 
