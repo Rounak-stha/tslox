@@ -20,6 +20,7 @@ import { searchKeymap, highlightSelectionMatches } from '@codemirror/search'
 import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete'
 import { lintKeymap } from '@codemirror/lint'
 import { lox } from '../../lang/lang'
+import { initialSourceCode } from '../../lang/keywords/kwHelpers'
 
 const basicSetup: Extension = (() => [
     lineNumbers(),
@@ -42,17 +43,7 @@ const basicSetup: Extension = (() => [
     keymap.of([...closeBracketsKeymap, ...defaultKeymap, ...searchKeymap, ...historyKeymap, ...foldKeymap, ...completionKeymap, ...lintKeymap])
 ])()
 
-const initialCode = `var num = 1;
-
-fun addNum(a) { 
-  return a + num; 
-} 
-
-if (true) { 
- var name = "Nu Name";
- print name;
- addNum(9);
-}`
+const initialCode = initialSourceCode()
 
 export default function useCodeMirror(onChange: (doc: string) => void): [React.RefObject<HTMLDivElement>, EditorView | undefined] {
     const [Editor, setEditor] = useState<EditorView>()

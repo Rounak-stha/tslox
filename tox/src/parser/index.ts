@@ -2,17 +2,7 @@ import LoxError from '../error/LoxError'
 import Token from '../tokenizer/Token'
 import TokenType from '../tokenizer/TokenType'
 import { Assignment, Binary, CallExpr, Expr, Grouping, Literal, Logical, Ternary, Unary, variable } from '../expression'
-import {
-    BlockStmt,
-    ExpressionStmt,
-    FunctionStmt,
-    IfStmt,
-    PrintStmt,
-    ReturnStmt,
-    Stmt,
-    VarStmt,
-    WhileStmt,
-} from '../statement'
+import { BlockStmt, ExpressionStmt, FunctionStmt, IfStmt, PrintStmt, ReturnStmt, Stmt, VarStmt, WhileStmt } from '../statement'
 import { LoxBulkError } from '../error/LoxBulkError'
 
 // Create a helper function to throw synyax error of this signature
@@ -59,7 +49,7 @@ export default class Parser {
             type: 'Lox Program',
             from: this.tokens[0].from,
             to: this.tokens[this.tokens.length - 1].to,
-            body: statements,
+            body: statements
         }
     }
 
@@ -107,8 +97,7 @@ export default class Parser {
         if (!this.check(TokenType.RIGHT_PAREN)) {
             parameters.push(this.consume(TokenType.IDENTIFIER, 'Expected parameter name.'))
             while (this.match(TokenType.COMMA)) {
-                if (parameters.length === 255)
-                    throw new LoxError(this.peek().line, 'Parse Error', 'Maximum Arguments Length is 255')
+                if (parameters.length === 255) throw new LoxError(this.peek().line, 'Parse Error', 'Maximum Arguments Length is 255')
                 parameters.push(this.consume(TokenType.IDENTIFIER, 'Expected parameter name.'))
             }
         }
@@ -178,19 +167,9 @@ export default class Parser {
         }
         this.consume(TokenType.RIGHT_PAREN, "Expect ')' after clauses")
         let body = this.statement()
-        if (incrementer)
-            body = new BlockStmt(
-                [body, new ExpressionStmt(incrementer, incrementer.from, incrementer.to)],
-                body.from,
-                incrementer.to
-            )
+        if (incrementer) body = new BlockStmt([body, new ExpressionStmt(incrementer, incrementer.from, incrementer.to)], body.from, incrementer.to)
         // TO-DO : The location of the literal below is not exact: Fix it
-        body = new WhileStmt(
-            condition ? condition : new Literal(true, this.previous().from, this.previous().from),
-            body,
-            from,
-            body.to
-        )
+        body = new WhileStmt(condition ? condition : new Literal(true, this.previous().from, this.previous().from), body, from, body.to)
         if (initializer) body = new BlockStmt([initializer, body], from, body.to)
         return body
     }
@@ -300,8 +279,7 @@ export default class Parser {
         let second: Expr
         if (this.match(TokenType.QUESTION_MARK)) {
             first = this.equality()
-            if (!this.match(TokenType.COLON))
-                throw new LoxError(this.line(), 'Syntax', `':' Expected, Got '${this.currentLexeme()}'`)
+            if (!this.match(TokenType.COLON)) throw new LoxError(this.line(), 'Syntax', `':' Expected, Got '${this.currentLexeme()}'`)
             second = this.equality()
             return new Ternary(expr, first, second, expr.from, second.to)
         }
@@ -388,7 +366,6 @@ export default class Parser {
         }
         this.consume(TokenType.RIGHT_PAREN, "Expected ')' after arguments")
         const to = this.previous().to
-        console.log('Call Expr', from, to)
         return new CallExpr(callee, args, this.previous(), from, to)
     }
 

@@ -30,7 +30,7 @@ input {
     transform: translate(-50%, -50%);
     min-width: 50vw;
     max-width: 70vw;
-    max-height: 70vh;
+    max-height: 75vh;
     padding: 25px;
     animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -99,6 +99,11 @@ input {
 }
 
 /* Modal End */
+
+/* input[type='checkbox']:checked:after {
+    content: '\2713';
+    color: white;
+} */
 
 /* Tree View Start */
 .node-hover {

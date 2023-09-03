@@ -1,6 +1,7 @@
 import TokenType from './TokenType'
 import Token from './Token'
 import LoxError from '../error/LoxError'
+import setupKeywords from './setup'
 
 export default class Tokenizer {
     private source: string
@@ -9,24 +10,7 @@ export default class Tokenizer {
     private cursor = 0 // index of the scanner in the source
     private line = 1
 
-    private static keywords: Record<string, TokenType> = {
-        and: TokenType.AND,
-        class: TokenType.CLASS,
-        else: TokenType.ELSE,
-        false: TokenType.FALSE,
-        for: TokenType.FOR,
-        fun: TokenType.FUN,
-        if: TokenType.IF,
-        nil: TokenType.NIL,
-        or: TokenType.OR,
-        print: TokenType.PRINT,
-        return: TokenType.RETURN,
-        super: TokenType.SUPER,
-        this: TokenType.THIS,
-        true: TokenType.TRUE,
-        var: TokenType.VAR,
-        while: TokenType.WHILE,
-    }
+    private static keywords: Record<string, TokenType> = setupKeywords()
 
     constructor(source: string) {
         this.source = source
@@ -140,8 +124,16 @@ export default class Tokenizer {
     }
 
     private isAlpha(c: string) {
+        // Check Nepali Letter
+        const codePoint = c.codePointAt(0)
+        if (!codePoint) return false
+        if (codePoint >= 0x0900 && codePoint <= 0x094f) return true
+
+        // Check engish letter
         c = c.toLowerCase()
-        return c >= 'a' && c <= 'z'
+        if (c >= 'a' && c <= 'z') return true
+
+        return false
     }
 
     private scanIdentifier() {
@@ -227,9 +219,7 @@ export default class Tokenizer {
      */
     private addToken(type: TokenType, literal?: any) {
         const lexeme = this.source.substring(this.start, this.cursor)
-        this.tokens.push(
-            new Token(type, lexeme, literal === 0 || literal ? literal : null, this.line, this.start, this.cursor)
-        )
+        this.tokens.push(new Token(type, lexeme, literal === 0 || literal ? literal : null, this.line, this.start, this.cursor))
     }
 
     /**

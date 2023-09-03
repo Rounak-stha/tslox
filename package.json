@@ -6,6 +6,8 @@
     "scripts": {
         "build": "npm run build -w tox",
         "build:run": "npm run -w tox build:run",
+        "web": "npm run dev -w www",
+        "tox": "npm run tox -w tox",
         "test": "jest",
         "test:watch": "jest --watchAll --verbose",
         "format": "prettier --write ."

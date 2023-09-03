@@ -29,7 +29,7 @@ enum TokenType {
     STRING = 'STRING',
     NUMBER = 'NUMBER',
 
-    // Keywords.
+    // Keywords
     AND = 'AND',
     CLASS = 'CLASS',
     ELSE = 'ELSE',
@@ -46,7 +46,36 @@ enum TokenType {
     TRUE = 'TRUE',
     VAR = 'VAR',
     WHILE = 'WHILE',
-    EOF = 'EOF',
+    EOF = 'EOF'
 }
 
+/* function setupBrowser() {
+    const selectedKeywordGroupName = localStorage.getItem('selectedKeywordGroupName')
+    const keywordsGroup = selectedKeywordGroupName ? localStorage.getItem(selectedKeywordGroupName) : undefined
+
+    // localStorage.getItem() returns string | null
+    if (keywordsGroup === null) return alert('An Error Occoured.\nPlease Refresh Page')
+    if (keywordsGroup !== undefined) {
+        const kws = JSON.parse(keywordsGroup)
+        console.log(kws)
+        for (let [key, value] of Object.entries(kws)) {
+            console.log(key, value)
+            //@ts-ignore
+            console.log(TokenType[key])
+            // @ts-ignore
+            if (TokenType[key]) {
+                ;(TokenType as any)[key] = value
+            }
+        }
+    }
+}
+
+;(function () {
+    const isBrowser = typeof window !== undefined
+    if (isBrowser) setupBrowser()
+    // else setupNode()
+})()
+
+console.log(TokenType)
+ */
 export default TokenType

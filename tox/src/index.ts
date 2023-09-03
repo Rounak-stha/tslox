@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import Parser, { SyntaxTree } from './parser'
-import Tokenizer from './tokenizer/tokenizer'
+import Tokenizer from './tokenizer'
 import { Interpreter } from './interpreter'
 import LoxError from './error/LoxError'
 import { LoxBulkError } from './error/LoxBulkError'

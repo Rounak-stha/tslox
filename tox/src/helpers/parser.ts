@@ -1,6 +1,6 @@
 import path from 'path'
 import fs from 'fs'
-import Tokenizer from '../tokenizer/tokenizer'
+import Tokenizer from '../tokenizer'
 import Parser from '../parser'
 
 function run(source: string) {
@@ -20,7 +20,7 @@ function runFile(filePath: string) {
 async function runPrompt() {
     const readline = require('readline').createInterface({
         input: process.stdin,
-        output: process.stdout,
+        output: process.stdout
     })
     async function prompt(): Promise<string> {
         return new Promise((resolve) => {

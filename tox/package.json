@@ -8,7 +8,8 @@
     },
     "scripts": {
         "build": "tsc -p tsconfig.build.json",
-        "build:run": "npm run -w tox build && node build/src/index.js"
+        "build:run": "npm run build && node build/src/index.js",
+        "tox": "npx ts-node src/index.ts"
     },
     "devDependencies": {
         "@types/jest": "^29.5.3",
