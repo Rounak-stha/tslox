@@ -2,13 +2,23 @@ import path from 'path'
 import fs from 'fs'
 import Tokenizer from '../tokenizer'
 import Parser from '../parser'
+import LoxError from '../error/LoxError'
+import { LoxBulkError } from '../error/LoxBulkError'
 
 function run(source: string) {
-    const tokenizer = new Tokenizer(source)
-    tokenizer.scanTokens()
-    const parser = new Parser(tokenizer.Tokens)
-    const expr = parser.parse()
-    if (expr) console.log(JSON.stringify(expr, null, 4))
+    try {
+        const tokenizer = new Tokenizer(source)
+        tokenizer.scanTokens()
+        const parser = new Parser(tokenizer.Tokens)
+        const expr = parser.parse()
+        console.log(JSON.stringify(expr, null, 4))
+    } catch (e) {
+        if (e instanceof LoxError) {
+            console.log(e.message)
+        } else if (e instanceof LoxBulkError) {
+            e.errors.forEach((e) => console.log(e.message))
+        } else throw e
+    }
 }
 
 function runFile(filePath: string) {

@@ -9,7 +9,8 @@
     "scripts": {
         "build": "tsc -p tsconfig.build.json",
         "build:run": "npm run build && node build/src/index.js",
-        "tox": "npx ts-node src/index.ts"
+        "tox": "npx ts-node src/index.ts",
+        "parser": "npx ts-node src/helpers/parser.ts"
     },
     "devDependencies": {
         "@types/jest": "^29.5.3",

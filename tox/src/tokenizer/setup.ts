@@ -23,7 +23,7 @@ export const keywordsList = Object.keys(keywords)
 export const keywordTypeList = keywordsList.map((k) => keywords[k].toString())
 
 export default function setupKeywords() {
-    if (typeof window === undefined) return keywords
+    if (typeof window === 'undefined') return keywords
 
     const selectedKeywordGroupName = localStorage.getItem('selectedKeywordGroupName')
 
