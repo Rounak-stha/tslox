@@ -7,18 +7,36 @@ import nepKW from './nepLang.json'
 // KWs - keywords
 // KWG - KeywordGroup
 
-if (!localStorage.getItem('selectedKeywordGroupName')) {
-    localStorage.setItem('selectedKeywordGroupName', 'defaultKWs')
+export const SELECTED_KEYWORD_GROP_NAME = 'selectedKeywordGroupName'
+export const DEFAULT_KW = 'defaultKWs'
+export const CUSTOM_KW = 'customKWs'
+export const NEPALI_KW = 'nepaliKWs'
+
+function initializeKeywords() {
+    if (!localStorage.getItem('SELECTED_KEYWORD_GROP_NAME')) {
+        localStorage.setItem('selectedKeywordGroupName', 'defaultKWs')
+    }
+
+    if (!localStorage.getItem(DEFAULT_KW)) {
+        localStorage.setItem(DEFAULT_KW, JSON.stringify(dKW))
+    }
+
+    if (!localStorage.getItem(CUSTOM_KW)) {
+        localStorage.setItem(CUSTOM_KW, JSON.stringify(dKW))
+    }
+
+    if (!localStorage.getItem(NEPALI_KW)) {
+        localStorage.setItem(NEPALI_KW, JSON.stringify(nepKW))
+    }
 }
 
-if (!localStorage.getItem('defaultKWs')) {
-    localStorage.setItem('defaultKWs', JSON.stringify(dKW))
+export function getActiveKeywordsStr() {
+    const selectedKeywordGroupName = localStorage.getItem(SELECTED_KEYWORD_GROP_NAME)
+
+    if (selectedKeywordGroupName) {
+        return localStorage.getItem(selectedKeywordGroupName)
+    }
+    return null
 }
 
-if (!localStorage.getItem('customKWs')) {
-    localStorage.setItem('customKWs', JSON.stringify(dKW))
-}
-
-if (!localStorage.getItem('nepaliKWs')) {
-    localStorage.setItem('nepaliKWs', JSON.stringify(nepKW))
-}
+initializeKeywords()
