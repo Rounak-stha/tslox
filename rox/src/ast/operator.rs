@@ -1,6 +1,8 @@
 use super::span::Span;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[cfg_attr(test, derive(PartialEq, Eq))]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum Operator {
     And(Span),
     Bang(Span),

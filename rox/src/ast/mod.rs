@@ -3,16 +3,19 @@ pub mod operator;
 pub mod span;
 pub mod statement;
 
+use bumpalo::collections::vec::Vec;
+use serde::Serialize;
 use span::Span;
 use statement::Statement;
 
-pub struct Ast<'de> {
-    span: Span,
-    body: Vec<Statement<'de>>,
+#[derive(Debug, Serialize)]
+pub struct Ast<'alloc> {
+    pub span: Span,
+    pub body: Vec<'alloc, Statement<'alloc>>,
 }
 
-impl<'de> Ast<'de> {
-    pub fn new(span: Span, body: Vec<Statement<'de>>) -> Self {
+impl<'alloc> Ast<'alloc> {
+    pub fn new(span: Span, body: Vec<'alloc, Statement<'alloc>>) -> Self {
         Self { span, body }
     }
 }

@@ -1,60 +1,118 @@
 use crate::lexer::token::Token;
 
 use super::{expression::Expression as Expr, span::Span};
+use bumpalo::{boxed::Box, collections::Vec as BumpVec};
+use serde::Serialize;
 
-pub enum Statement<'de> {
-    Block(Box<Block<'de>>),
-    Expression(Box<Expression<'de>>),
-    Function(Box<Function<'de>>),
-    If(Box<If<'de>>),
-    Print(Box<Print<'de>>),
-    Return(Box<Return<'de>>),
-    While(Box<While<'de>>),
-    Declaration(Box<Declaration<'de>>),
-}
-pub struct Block<'de> {
-    span: Span,
-    body: Statement<'de>,
-}
-
-pub struct Declaration<'de> {
-    span: Span,
-    name: Token<'de>,
-    value: Option<Expr<'de>>,
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+#[serde(tag = "type")]
+pub enum Statement<'alloc> {
+    Block(Box<'alloc, Block<'alloc>>),
+    Expression(Box<'alloc, Expression<'alloc>>),
+    For(Box<'alloc, For<'alloc>>),
+    Function(Box<'alloc, Function<'alloc>>),
+    If(Box<'alloc, If<'alloc>>),
+    Print(Box<'alloc, Print<'alloc>>),
+    Return(Box<'alloc, Return<'alloc>>),
+    While(Box<'alloc, While<'alloc>>),
+    Declaration(Box<'alloc, Declaration<'alloc>>),
 }
 
-pub struct Expression<'de> {
-    span: Span,
-    expression: Expr<'de>,
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct Block<'alloc> {
+    #[serde(flatten)]
+    pub span: Span,
+    pub body: BumpVec<'alloc, Statement<'alloc>>,
 }
 
-pub struct Function<'de> {
-    span: Span,
-    name: Token<'de>,
-    params: Vec<Token<'de>>,
-    body: Statement<'de>,
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct Declaration<'alloc> {
+    #[serde(flatten)]
+    pub span: Span,
+
+    pub name: Token,
+    pub value: Option<Expr<'alloc>>,
 }
 
-pub struct If<'de> {
-    span: Span,
-    condition: Expr<'de>,
-    body: Statement<'de>,
-    else_branch: Option<Statement<'de>>,
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct Expression<'alloc> {
+    #[serde(flatten)]
+    pub span: Span,
+    pub expression: Expr<'alloc>,
 }
 
-pub struct Print<'de> {
-    span: Span,
-    expression: Expr<'de>,
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct For<'alloc> {
+    #[serde(flatten)]
+    pub span: Span,
+    pub initializer: Option<Statement<'alloc>>,
+    pub condition: Option<Expr<'alloc>>,
+    pub increment: Option<Expr<'alloc>>,
+    pub body: Statement<'alloc>,
 }
 
-pub struct Return<'de> {
-    span: Span,
-    token: Token<'de>,
-    value: Expr<'de>,
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct Function<'alloc> {
+    #[serde(flatten)]
+    pub span: Span,
+    pub name: Token,
+    pub params: Vec<Token>,
+    pub body: Statement<'alloc>,
 }
 
-pub struct While<'de> {
-    span: Span,
-    condition: Expr<'de>,
-    body: Statement<'de>,
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct If<'alloc> {
+    #[serde(flatten)]
+    pub span: Span,
+    pub condition: Expr<'alloc>,
+    pub body: Statement<'alloc>,
+    pub else_branch: Option<Statement<'alloc>>,
+}
+
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct Print<'alloc> {
+    #[serde(flatten)]
+    pub span: Span,
+    pub value: Expr<'alloc>,
+}
+
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct Return<'alloc> {
+    #[serde(flatten)]
+    pub span: Span,
+    pub value: Expr<'alloc>,
+}
+
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct While<'alloc> {
+    #[serde(flatten)]
+    pub span: Span,
+    pub condition: Expr<'alloc>,
+    pub body: Statement<'alloc>,
+}
+
+impl Statement<'_> {
+    pub fn span(&self) -> Span {
+        match self {
+            Statement::Block(block) => block.span,
+            Statement::Expression(expr) => expr.span,
+            Statement::For(for_) => for_.span,
+            Statement::Function(fun) => fun.span,
+            Statement::If(if_) => if_.span,
+            Statement::Print(print) => print.span,
+            Statement::Return(ret) => ret.span,
+            Statement::While(while_) => while_.span,
+            Statement::Declaration(decl) => decl.span,
+        }
+    }
 }

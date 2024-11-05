@@ -1,6 +1,7 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize, Copy, Clone, PartialEq)]
+#[cfg_attr(test, derive(Eq))]
+#[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
 pub enum TokenKind {
     LeftParen,
     RightParen,

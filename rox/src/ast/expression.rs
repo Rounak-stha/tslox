@@ -1,123 +1,153 @@
-use crate::lexer::token::Token;
-
 use super::{operator::Operator, span::Span};
+use crate::lexer::token::Token;
+use bumpalo::boxed::Box;
+use serde::{Deserialize, Serialize};
 
-pub trait Spanned {
-    fn span(&self) -> Span;
-}
-macro_rules! impl_spanned {
-	($($t: ty),*) => {
-		$(
-			impl Spanned for $t {
-				fn span(&self) -> Span {
-					self.span.clone()
-				}
-			}
-		)*
-	}
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub enum LiteralValue<'alloc> {
+    String(StringLiteral<'alloc>),
+    Number(NumberLiteral<'alloc>),
+    Identifier(IdentifierLiteral<'alloc>),
+    Boolean(BooleanLiteral),
+    Nil(NilLiteral),
 }
 
-#[derive(Debug)]
-pub enum Expression<'de> {
-    Assignment(Box<Assignment<'de>>),
-    Binary(Box<Binary<'de>>),
-    Call(Box<Call<'de>>),
-    Grouping(Box<Grouping<'de>>),
-    Literal(Box<Literal<'de>>),
-    Logical(Box<Logical<'de>>),
-    Ternary(Box<Ternary<'de>>),
-    Unary(Box<Unary<'de>>),
-    Variable(Box<Variable<'de>>),
-}
-
-#[derive(Debug)]
-pub struct Assignment<'de> {
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct StringLiteral<'alloc> {
     pub span: Span,
-    pub name: Token<'de>,
-    pub value: Expression<'de>,
+    pub value: &'alloc str,
 }
 
-#[derive(Debug)]
-pub struct Binary<'de> {
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct NumberLiteral<'alloc> {
     pub span: Span,
-    pub left: Expression<'de>,
-    pub right: Expression<'de>,
+    pub raw: &'alloc str,
+    pub value: f64,
+}
+
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct IdentifierLiteral<'alloc> {
+    pub span: Span,
+    pub name: &'alloc str,
+}
+
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct BooleanLiteral {
+    pub span: Span,
+    pub value: bool,
+}
+
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct NilLiteral {
+    pub span: Span,
+}
+
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+#[serde(tag = "type")]
+pub enum Expression<'alloc> {
+    Assignment(Box<'alloc, Assignment<'alloc>>),
+    Binary(Box<'alloc, Binary<'alloc>>),
+    Call(Box<'alloc, Call<'alloc>>),
+    Grouping(Box<'alloc, Grouping<'alloc>>),
+    Literal(Box<'alloc, Literal<'alloc>>),
+    Logical(Box<'alloc, Logical<'alloc>>),
+    Ternary(Box<'alloc, Ternary<'alloc>>),
+    Unary(Box<'alloc, Unary<'alloc>>),
+    Variable(Box<'alloc, Variable<'alloc>>),
+}
+
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct Assignment<'alloc> {
+    pub span: Span,
+    pub target: Expression<'alloc>,
+    pub value: Expression<'alloc>,
+}
+
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct Binary<'alloc> {
+    pub span: Span,
+    pub left: Expression<'alloc>,
+    pub right: Expression<'alloc>,
     pub operator: Operator,
 }
 
-#[derive(Debug)]
-pub struct Call<'de> {
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct Call<'alloc> {
     pub span: Span,
-    pub callee: Expression<'de>,
-    pub arguments: Vec<Expression<'de>>,
-    pub end_paren: Token<'de>,
+    pub callee: Expression<'alloc>,
+    pub arguments: Vec<Expression<'alloc>>,
+    pub end_paren: Token,
 }
 
-#[derive(Debug)]
-pub struct Grouping<'de> {
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct Grouping<'alloc> {
     pub span: Span,
-    pub expression: Expression<'de>,
+    pub expression: Expression<'alloc>,
 }
 
-#[derive(Debug)]
-pub struct Literal<'de> {
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct Literal<'alloc> {
     pub span: Span,
-    pub value: Token<'de>,
+    pub value: LiteralValue<'alloc>,
 }
 
-#[derive(Debug)]
-pub struct Logical<'de> {
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct Logical<'alloc> {
     pub span: Span,
-    pub left: Expression<'de>,
-    pub right: Expression<'de>,
+    pub left: Expression<'alloc>,
+    pub right: Expression<'alloc>,
     pub operator: Operator,
 }
 
-#[derive(Debug)]
-pub struct Ternary<'de> {
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct Ternary<'alloc> {
     pub span: Span,
-    pub condition: Expression<'de>,
-    pub true_branch: Expression<'de>,
-    pub false_branch: Expression<'de>,
+    pub condition: Expression<'alloc>,
+    pub true_branch: Expression<'alloc>,
+    pub false_branch: Expression<'alloc>,
 }
 
-#[derive(Debug)]
-pub struct Unary<'de> {
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct Unary<'alloc> {
     pub span: Span,
-    pub right: Expression<'de>,
+    pub right: Expression<'alloc>,
     pub operator: Operator,
 }
 
-#[derive(Debug)]
-pub struct Variable<'de> {
+#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize)]
+pub struct Variable<'alloc> {
     pub span: Span,
-    pub name: Token<'de>,
+    pub name: &'alloc str,
 }
 
-impl_spanned! {
-    Assignment<'_>,
-    Binary<'_>,
-    Call<'_>,
-    Grouping<'_>,
-    Literal<'_>,
-    Logical<'_>,
-    Ternary<'_>,
-    Unary<'_>,
-    Variable<'_>
-}
-
-impl<'de> Expression<'de> {
+impl<'alloc> Expression<'alloc> {
     pub fn span(&self) -> Span {
         match self {
-            Expression::Assignment(assignment) => assignment.span(),
-            Expression::Binary(binary) => binary.span(),
-            Expression::Call(call) => call.span(),
-            Expression::Grouping(grouping) => grouping.span(),
-            Expression::Literal(literal) => literal.span(),
-            Expression::Logical(logical) => logical.span(),
-            Expression::Ternary(ternary) => ternary.span(),
-            Expression::Unary(unary) => unary.span(),
-            Expression::Variable(variable) => variable.span(),
+            Expression::Assignment(assignment) => assignment.span,
+            Expression::Binary(binary) => binary.span,
+            Expression::Call(call) => call.span,
+            Expression::Grouping(grouping) => grouping.span,
+            Expression::Literal(literal) => literal.span,
+            Expression::Logical(logical) => logical.span,
+            Expression::Ternary(ternary) => ternary.span,
+            Expression::Unary(unary) => unary.span,
+            Expression::Variable(variable) => variable.span,
         }
     }
 }

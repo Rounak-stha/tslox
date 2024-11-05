@@ -1,6 +1,7 @@
-use crate::lexer::token::Token;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, Default)]
+#[cfg_attr(test, derive(PartialEq, Eq))]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
 pub struct Span {
     pub from: usize,
     pub to: usize,
@@ -22,3 +23,21 @@ impl Span {
         self
     }
 }
+
+pub trait Spanned {
+    fn span(&self) -> Span;
+}
+
+macro_rules! impl_spanned {
+	($($t: ty),*) => {
+		$(
+			impl Spanned for $t {
+				fn span(&self) -> Span {
+					self.span.clone()
+				}
+			}
+		)*
+	}
+}
+
+pub(crate) use impl_spanned;

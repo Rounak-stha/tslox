@@ -4,10 +4,12 @@ mod reader;
 pub mod token;
 pub mod token_kind;
 
+use std::future;
+
 use crate::{ast::expression::Literal, lox_error::LoxError};
 use keyword::{combine_keywords, get_default_keywords, Keywords};
 use reader::Reader;
-use token::{Token, TokenLiteral};
+use token::Token;
 use token_kind::TokenKind;
 
 /**
@@ -15,10 +17,10 @@ use token_kind::TokenKind;
  * HANDLE_ERROR
  */
 
-pub struct Lexer<'de> {
-    source: &'de str,
-    reader: Reader<'de>,
-    pub tokens: Vec<Token<'de>>,
+pub struct Lexer<'alloc> {
+    source: &'alloc str,
+    reader: Reader<'alloc>,
+    pub tokens: Vec<Token>,
     keywords: Keywords,
     errors: Vec<LoxError>,
 }
@@ -31,8 +33,8 @@ pub enum MultiCharToken {
     IfEqualElse(TokenKind, TokenKind),
 }
 
-impl<'de> Lexer<'de> {
-    pub fn new(source: &'de str) -> Self {
+impl<'alloc> Lexer<'alloc> {
+    pub fn new(source: &'alloc str) -> Self {
         Lexer {
             source,
             reader: Reader::new(source),
@@ -44,7 +46,7 @@ impl<'de> Lexer<'de> {
     /// Create a new lexer with custom keywords
     /// Since custom keywords are stored in localstorage as string, they are get and passed as is
     /// the lexer will do the parsing of the string to get the keywords
-    pub fn new_with_keywords(source: &'de str, keywords: Option<&str>) -> Self {
+    pub fn new_with_keywords(source: &'alloc str, keywords: Option<&str>) -> Self {
         Lexer {
             source,
             reader: Reader::new(source),
@@ -62,6 +64,9 @@ impl<'de> Lexer<'de> {
         self.errors.len() > 0
     }
 
+    pub fn errors(&self) -> Vec<LoxError> {
+        self.errors.iter().cloned().collect()
+    }
     pub fn report_errors(&self) {
         for error in &self.errors {
             eprintln!("{}", error);
@@ -69,19 +74,8 @@ impl<'de> Lexer<'de> {
     }
 
     fn add_token(&mut self, kind: TokenKind) {
-        self.add_new_token(kind, None);
-    }
-
-    fn add_token_with_literal(&mut self, kind: TokenKind, literal: TokenLiteral<'de>) {
-        self.add_new_token(kind, Some(literal));
-    }
-
-    fn add_new_token(&mut self, kind: TokenKind, literal: Option<TokenLiteral<'de>>) {
-        let lexeme = &self.source[self.reader.start..self.reader.cursor];
         self.tokens.push(Token::new(
             kind,
-            lexeme,
-            literal,
             self.reader.line,
             self.reader.start,
             self.reader.cursor,
@@ -120,10 +114,7 @@ impl<'de> Lexer<'de> {
     fn scan_string(&mut self) {
         while let Some(c) = self.reader.advance() {
             if c == '"' {
-                let literal = TokenLiteral::String(
-                    &self.source[self.reader.start + 1..self.reader.cursor - 1],
-                );
-                self.add_token_with_literal(TokenKind::String, literal);
+                self.add_token(TokenKind::String);
                 return;
             }
         }
@@ -141,13 +132,8 @@ impl<'de> Lexer<'de> {
         }
 
         // NOTE: HANDLE_ERROR
-        let literal = TokenLiteral::Number(
-            self.source[self.reader.start..self.reader.cursor]
-                .parse::<f64>()
-                .unwrap(),
-        );
 
-        self.add_token_with_literal(TokenKind::Number, literal);
+        self.add_token(TokenKind::Number);
     }
 
     fn scan_identifier(&mut self) {
@@ -255,11 +241,6 @@ mod tests {
         print!("{tokens:?}");
         assert_eq!(tokens.len(), 3);
         assert_eq!(tokens[0].kind, TokenKind::String);
-        assert_eq!(tokens[0].lexeme, "\"Hello, World!\"");
-        assert_eq!(
-            tokens[0].literal,
-            Some(TokenLiteral::String("Hello, World!"))
-        );
     }
 
     #[test]
@@ -276,7 +257,6 @@ mod tests {
         assert_eq!(tokens[3].kind, TokenKind::False);
         assert_eq!(tokens[4].kind, TokenKind::Nil);
         assert_eq!(tokens[5].kind, TokenKind::String);
-        assert_eq!(tokens[5].literal, Some(TokenLiteral::String("Hello")));
         assert_eq!(tokens[6].kind, TokenKind::Eof);
     }
 
